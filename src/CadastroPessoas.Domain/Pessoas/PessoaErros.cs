@@ -12,6 +12,9 @@ public static class PessoaErros
 
     public static readonly Erro DataNascimentoObrigatoria = CampoObrigatorio("dataNascimento");
 
+    public static readonly Erro DataNascimentoFormatoInvalido =
+        Validacao("dataNascimento", "A data de nascimento deve estar no formato AAAA-MM-DD.");
+
     public static readonly Erro DataNascimentoFutura =
         Validacao("dataNascimento", "A data de nascimento não pode ser futura.");
 
@@ -26,6 +29,12 @@ public static class PessoaErros
 
     public static readonly Erro SexoInvalido =
         Validacao("sexo", $"Sexo inválido. Valores aceitos: {Sexo.CodigosAceitos}.");
+
+    public static readonly Erro CpfDuplicado =
+        new("cpf", "Já existe uma pessoa cadastrada com este CPF.", TipoErro.Conflito);
+
+    public static readonly Erro NaoEncontrada =
+        new("id", "Pessoa não encontrada.", TipoErro.NaoEncontrado);
 
     private static Erro CampoObrigatorio(string campo) =>
         Validacao(campo, $"O campo {campo} é obrigatório.");

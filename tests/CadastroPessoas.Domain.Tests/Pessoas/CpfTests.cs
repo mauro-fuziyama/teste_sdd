@@ -20,6 +20,17 @@ public class CpfTests
     }
 
     [Theory]
+    [InlineData("123.456.789-09")]
+    [InlineData("12345678909")]
+    public void CriarAceitaCpfComDigitoVerificadorZero(string entrada)
+    {
+        var resultado = Cpf.Criar(entrada);
+
+        resultado.Valor!.Numero.Should().Be("12345678909");
+    }
+
+    [Theory]
+    [InlineData("529.982.247-15")]
     [InlineData("529.982.247-26")]
     [InlineData("5299822472")]
     [InlineData("529.982.247-2A")]
