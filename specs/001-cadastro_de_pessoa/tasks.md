@@ -3,7 +3,7 @@
 - **Feature:** 001-cadastro-pessoa
 - **Spec:** [spec.md](./spec.md)
 - **Plan:** [plan.md](./plan.md)
-- **Status:** Em andamento (Task 1 concluída)
+- **Status:** Em andamento (Tasks 1 e 2 concluídas)
 - **Data:** 2026-10-30
 
 ## Como usar este arquivo
@@ -195,13 +195,13 @@ Criar as pastas da seção 3 do plano. Os arquivos de código serão preenchidos
 
 **Depende de:** 1 · **Requisitos:** plan.md 4.1
 
-- [ ] Criar `Domain/Comum/TipoErro.cs` (`Validacao`, `NaoEncontrado`, `Conflito`)
-- [ ] Criar `Domain/Comum/Erro.cs` (`record Erro(string Campo, string Mensagem, TipoErro Tipo)`)
-- [ ] Criar `Domain/Comum/Result.cs` com `Ok`, `Falha`, `Sucesso` e conversões implícitas
-- [ ] Testes em `Domain.Tests/Comum/ResultTests.cs`:
-  - [ ] `Ok` tem `Sucesso = true`, valor preenchido e lista de erros vazia
-  - [ ] `Falha` com vários erros mantém todos, na ordem
-  - [ ] Conversão implícita de valor e de `Erro` funciona
+- [x] Criar `Domain/Comum/TipoErro.cs` (`Validacao`, `NaoEncontrado`, `Conflito`)
+- [x] Criar `Domain/Comum/Erro.cs` (`record Erro(string Campo, string Mensagem, TipoErro Tipo)`)
+- [x] Criar `Domain/Comum/Result.cs` com `Ok`, `Falha`, `Sucesso` e conversões implícitas
+- [x] Testes em `Domain.Tests/Comum/ResultTests.cs`:
+  - [x] `Ok` tem `Sucesso = true`, valor preenchido e lista de erros vazia
+  - [x] `Falha` com vários erros mantém todos, na ordem
+  - [x] Conversão implícita de valor e de `Erro` funciona
 
 **Critérios de conclusão:** testes verdes; `Result` sem dependências externas.
 

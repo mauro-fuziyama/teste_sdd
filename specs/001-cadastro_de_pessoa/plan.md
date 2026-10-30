@@ -216,6 +216,8 @@ public sealed class Result<T>
 }
 ```
 
+O analisador CA1000 (membros estáticos em tipo genérico) é suprimido apenas na classe `Result<T>`, com justificativa, porque `Ok` e `Falha` são a API de criação escolhida.
+
 ### 4.2 Value Objects
 
 Cada campo com regra é um Value Object imutável, com construtor privado e um método `Criar` que valida e retorna `Result`. Um objeto inválido nunca chega a existir.
