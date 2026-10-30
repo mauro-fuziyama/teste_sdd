@@ -20,7 +20,7 @@ API REST em C# / .NET com arquitetura **Hexagonal (Ports & Adapters)**. As regra
 | Fluxo de erros | Padrão Result (sem exceções para regras de negócio) |
 | Documentação | OpenAPI nativo do ASP.NET Core + Scalar UI |
 | Testes | xUnit, AwesomeAssertions, Testcontainers (MySQL) |
-| Configuração | `appsettings.json` com Options Pattern; conexão lida do `.env` com DotNetEnv |
+| Configuração | `appsettings.json` com Options Pattern (inclusive a connection string) |
 
 ### Acesso a dados com Dapper
 
@@ -45,18 +45,18 @@ Adotadas as propostas da spec até confirmação. Todas são de baixo impacto pa
 | ID | Decisão adotada |
 |----|-----------------|
 | Q1 | Apenas `PUT` |
-| Q2 | Exclusão lógica (`ativo = 0`), conforme US05 da spec |
+| Q2 | Exclusão lógica (`ativo = 0`), conforme US05 da spec. Cadastro com CPF de pessoa inativa reaproveita o registro: substitui os dados, `criadoEm` e `atualizadoEm` recebem a data atual, `ativo = 1`, mantém o `id` e responde 201 |
+| — | No `PUT`, CPF que pertence a outra pessoa (ativa ou inativa) responde 409 |
+| — | Todas as configurações, inclusive a connection string, ficam no `appsettings.json`. Em produção a pipeline substitui o arquivo |
 | — | `id` é `INT AUTO_INCREMENT`, gerado pelo banco (tabela existente), e não GUID |
 
-### Pendências (aguardando definição)
+### Pendências resolvidas
 
-| ID | Pendência | Impacto |
-|----|-----------|---------|
-| P1 | A tabela `pessoa` não tem índice único em `cpf` e o usuário da aplicação não tem permissão de DDL. O RNF02 exige unicidade garantida também no banco. Sugestão para o DBA: `CREATE UNIQUE INDEX ux_pessoa_cpf ON pessoa (cpf);` | Até ser resolvida, a unicidade é verificada só pela aplicação (requisições simultâneas podem duplicar). Tasks 7 e 10 |
-| P2 | O CPF de uma pessoa excluída logicamente (`ativo = 0`) impede um novo cadastro com o mesmo CPF? | Define o filtro de `ExisteCpfAsync` e se um índice único simples (P1) é viável. Tasks 7 e 10 |
-| P3 | A constitution exige senha armazenada com criptografia; o `.env` guarda a senha do banco em texto puro (fora do Git) | Definir se o `.env` é aceito em desenvolvimento ou se a senha deve ser cifrada |
-
-
+| ID | Pendência | Resolução |
+|----|-----------|-----------|
+| P1 | Faltava índice único em `cpf` (RNF02) | Criado no banco o índice único `cpf_UNIQUE` |
+| P2 | CPF de pessoa inativa impede novo cadastro? | Não: o cadastro reaproveita o registro inativo, atualiza os dados e o reativa |
+| P3 | Senha em texto puro no `.env` × constitution | A constitution foi revista. Todas as configurações ficam no `appsettings.json`; no Git ele é versionado com a senha vazia e a pipeline de produção substitui o arquivo |
 
 ## 2. Arquitetura
 
@@ -358,16 +358,18 @@ public interface IPessoaRepositorio
 {
     Task<Pessoa?> ObterPorIdAsync(int id, CancellationToken ct);
     Task<bool> ExisteCpfAsync(Cpf cpf, int? ignorarId, CancellationToken ct);
+    Task<int?> ObterIdInativoPorCpfAsync(Cpf cpf, CancellationToken ct);
     Task<(IReadOnlyList<Pessoa> Itens, int Total)> ListarAsync(FiltroPessoas filtro, CancellationToken ct);
     Task<int> AdicionarAsync(Pessoa pessoa, CancellationToken ct);
     Task AtualizarAsync(Pessoa pessoa, CancellationToken ct);
+    Task ReativarAsync(Pessoa pessoa, CancellationToken ct);
     Task DesativarAsync(Pessoa pessoa, CancellationToken ct);
 }
 ```
 
 O parâmetro `ignorarId` em `ExisteCpfAsync` atende ao RF04: na atualização, o CPF da própria pessoa não conta como duplicado.
 
-`AdicionarAsync` devolve o `id` gerado pelo banco. `ObterPorIdAsync` e `ListarAsync` consideram apenas pessoas ativas. Se `ExisteCpfAsync` considera também as inativas depende da pendência P2.
+`AdicionarAsync` devolve o `id` gerado pelo banco. `ObterPorIdAsync` e `ListarAsync` consideram apenas pessoas ativas. `ExisteCpfAsync` considera pessoas ativas e inativas, porque o índice único vale para todos os registros. `ObterIdInativoPorCpfAsync` e `ReativarAsync` atendem ao reaproveitamento do registro inativo no cadastro.
 
 `AdicionarAsync` e `AtualizarAsync` podem lançar `CpfDuplicadoException` quando outra requisição grava o mesmo CPF no mesmo instante (seção 7.5). A exceção faz parte do contrato da porta, por isso é declarada em `Application`, e não em `Infrastructure`.
 
@@ -385,18 +387,24 @@ public sealed class CadastrarPessoa(IPessoaRepositorio repositorio, TimeProvider
         if (!pessoa.Sucesso)
             return Result<PessoaResultado>.Falha([.. pessoa.Erros]);
 
+        var idInativo = await repositorio.ObterIdInativoPorCpfAsync(pessoa.Valor!.Cpf, ct);
+        if (idInativo is not null)
+            return await ReativarAsync(pessoa.Valor!, idInativo.Value, ct);
+
         if (await CpfJaCadastradoAsync(pessoa.Valor!, ct))
             return PessoaErros.CpfDuplicado;
 
-        var id = await repositorio.AdicionarAsync(pessoa.Valor!, ct);
-        pessoa.Valor!.DefinirId(id);
-        return PessoaResultado.De(pessoa.Valor!);
+        return await AdicionarAsync(pessoa.Valor!, ct);
     }
 
     private Task<bool> CpfJaCadastradoAsync(Pessoa pessoa, CancellationToken ct) =>
         repositorio.ExisteCpfAsync(pessoa.Cpf, ignorarId: null, ct);
+
+    // AdicionarAsync e ReativarAsync gravam, definem o Id e convertem CpfDuplicadoException em PessoaErros.CpfDuplicado.
 }
 ```
+
+Na reativação, a pessoa criada por `Pessoa.Criar` (com `CriadoEm` e `AtualizadoEm` iguais à data atual) recebe o `id` do registro inativo e substitui todos os dados dele.
 
 ### 5.4 Modelos de entrada e saída
 
@@ -467,7 +475,8 @@ CREATE TABLE `pessoa` (
   `ultimaalteracao` datetime DEFAULT NULL,
   `ativo` bit(1) NOT NULL DEFAULT b'1',
   `sexo` char(1) DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `cpf_UNIQUE` (`cpf`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 ```
 
@@ -484,7 +493,8 @@ CREATE TABLE `pessoa` (
 
 - As tabelas `emailpessoa` e `telefonepessoa` existem no schema, mas estão fora do escopo desta feature.
 - A collation `utf8mb4_0900_ai_ci` não diferencia acentos nem maiúsculas, o que atende o CA09 ("joao" encontra "João") sem lógica extra.
-- Não há índice único em `cpf` (pendência P1) nem índice em `nome`, que ajudaria a atender o RNF01 com volumes maiores.
+- O índice único `cpf_UNIQUE` garante a unicidade do CPF no banco (RNF02), para pessoas ativas e inativas.
+- Não há índice em `nome`, que ajudaria a atender o RNF01 com volumes maiores.
 
 ### 7.2 Registro de leitura e conversão para o domínio
 
@@ -552,7 +562,7 @@ internal static class PessoaSql
 
     public const string ObterPorId = $"SELECT {Colunas} FROM pessoa WHERE id = @Id AND ativo = 1;";
 
-    // O filtro por ativo depende da pendência P2.
+    // Considera ativas e inativas: o índice único vale para todos os registros.
     public const string ExisteCpf = """
         SELECT EXISTS(
             SELECT 1 FROM pessoa
@@ -579,6 +589,15 @@ internal static class PessoaSql
         WHERE id = @Id AND ativo = 1;
         """;
 
+    public const string ObterIdInativoPorCpf = "SELECT id FROM pessoa WHERE cpf = @Cpf AND ativo = 0;";
+
+    public const string Reativar = """
+        UPDATE pessoa
+        SET nome = @Nome, nascimento = @DataNascimento, cpf = @Cpf, sexo = @Sexo,
+            cadastro = @CriadoEm, ultimaalteracao = @AtualizadoEm, ativo = 1
+        WHERE id = @Id AND ativo = 0;
+        """;
+
     public const string Desativar = """
         UPDATE pessoa SET ativo = 0, ultimaalteracao = @AtualizadoEm WHERE id = @Id;
         """;
@@ -590,6 +609,7 @@ internal static class PessoaSql
 - **Listagem em uma ida ao banco:** a página e o total vêm juntos, lidos com `QueryMultipleAsync`.
 - `id`, `cadastro` e `ativo` não aparecem no `UPDATE` de atualização, garantindo que não são alterados (RF04).
 - **Exclusão lógica:** não existe `DELETE`. `Desativar` marca `ativo = 0` e mantém o histórico (US05).
+- **Reativação:** `Reativar` substitui os dados do registro inativo, redefine `cadastro` com a data atual e volta `ativo = 1`.
 
 ### 7.4 Repositório
 
@@ -632,7 +652,8 @@ internal sealed class PessoaRepositorio(IConexaoFactory conexoes) : IPessoaRepos
     private static CommandDefinition Comando(string sql, object parametros, CancellationToken ct) =>
         new(sql, parametros, cancellationToken: ct);
 
-    // ExisteCpfAsync, ListarAsync, AtualizarAsync e DesativarAsync seguem o mesmo formato.
+    // ExisteCpfAsync, ObterIdInativoPorCpfAsync, ListarAsync, AtualizarAsync, ReativarAsync e DesativarAsync seguem o mesmo formato.
+    // AtualizarAsync e ReativarAsync também convertem o erro 1062 em CpfDuplicadoException.
 }
 ```
 
@@ -642,22 +663,25 @@ internal sealed class PessoaRepositorio(IConexaoFactory conexoes) : IPessoaRepos
 
 ### 7.5 Concorrência no CPF
 
-A verificação `ExisteCpfAsync` no caso de uso cobre o cenário comum. Para duas requisições simultâneas com o mesmo CPF, só um índice único no banco impede a duplicidade, e a tabela atual não tem esse índice (**pendência P1**).
+A verificação `ExisteCpfAsync` no caso de uso cobre o cenário comum. Para duas requisições simultâneas com o mesmo CPF, o índice único `cpf_UNIQUE` rejeita a segunda gravação com o erro **1062** (`ER_DUP_ENTRY`) do MySQL. O repositório captura esse erro específico e o converte em `CpfDuplicadoException`, uma exceção da camada de aplicação que o caso de uso transforma em `PessoaErros.CpfDuplicado`. O cliente recebe 409 em vez de 500.
 
-O repositório já trata o erro **1062** (`ER_DUP_ENTRY`) do MySQL, convertendo-o em `CpfDuplicadoException`, que o caso de uso transforma em `PessoaErros.CpfDuplicado` (409). Assim, quando o índice for criado, o comportamento passa a valer sem mudança de código.
+Essa é a única exceção usada para regra de negócio, porque o conflito só é detectável no momento da gravação. Ela fica restrita à porta de saída e não sai do caso de uso.
 
 ### 7.6 Banco nos testes de integração
 
 - Não há DbUp nem scripts executados pela aplicação.
-- `tests/Scripts/criar_tabela_pessoa.sql` replica o DDL da seção 7.1. As fixtures dos testes de integração sobem um MySQL 8.0 com Testcontainers (mesma versão do servidor local) e executam esse script.
+- `tests/Scripts/criar_tabela_pessoa.sql` replica o DDL da seção 7.1, inclusive o índice único `cpf_UNIQUE`. As fixtures dos testes de integração sobem um MySQL 8.0 com Testcontainers (mesma versão do servidor local) e executam esse script.
 - Qualquer mudança feita na tabela do servidor local deve ser refletida nesse script.
 
-## 8. Configuração (`appsettings.json` e `.env`)
+## 8. Configuração (`appsettings.json`)
 
-As configurações são lidas por Options Pattern (`IOptions<T>`) com validação na inicialização (`ValidateDataAnnotations().ValidateOnStart()`). Uma configuração inválida impede a aplicação de subir, em vez de falhar em tempo de execução.
+Todas as configurações ficam no `appsettings.json`, inclusive a connection string. São lidas por Options Pattern (`IOptions<T>`) com validação na inicialização (`ValidateDataAnnotations().ValidateOnStart()`). Uma configuração inválida impede a aplicação de subir, em vez de falhar em tempo de execução.
 
 ```json
 {
+  "ConnectionStrings": {
+    "CadastroPessoas": "Server=localhost;Port=3306;Database=raspadinha_dev;User=raspadinha_dev;Password=;"
+  },
   "Paginacao": {
     "TamanhoPadrao": 20,
     "TamanhoMaximo": 100
@@ -675,9 +699,9 @@ As configurações são lidas por Options Pattern (`IOptions<T>`) com validaçã
 }
 ```
 
-- A conexão com o banco **não** fica no `appsettings.json`. Ela vem do arquivo `.env` na raiz (não versionado; o modelo está em `.env.example`), com as variáveis `DB_SERVER`, `DB_PORT`, `DB_NAME`, `DB_USER` e `DB_PASSWORD`.
-- O `Program.cs` carrega o `.env` com o pacote DotNetEnv sem sobrescrever variáveis de ambiente já definidas, para que outros ambientes possam informar as mesmas variáveis diretamente.
-- A connection string é montada na `Infrastructure` com `MySqlConnectionStringBuilder`, o que evita problemas com caracteres especiais na senha.
+- **Senha fora do Git:** o `appsettings.json` é versionado com `Password=` vazio. Cada desenvolvedor preenche a senha localmente e marca o arquivo com `git update-index --skip-worktree src/CadastroPessoas.Api/appsettings.json`, para que a senha não seja commitada.
+- **Produção:** a pipeline de deploy substitui o `appsettings.json` pelo arquivo com os dados de produção.
+- `appsettings.Development.json` contém apenas ajustes de log; não repete a connection string.
 - O usuário do banco deve ter apenas `SELECT`, `INSERT`, `UPDATE` e `DELETE`. Hoje o usuário local tem essas permissões em `*.*`; o ideal é restringi-las ao schema da aplicação.
 
 ## 9. Segurança e privacidade (LGPD)
@@ -720,15 +744,15 @@ Os testes de integração verificam explicitamente que o CPF é **gravado sem m�
 
 | Requisito | Onde é atendido |
 |-----------|-----------------|
-| RF01 | `CadastrarPessoa`, `Pessoa.Criar`, `POST /api/v1/pessoas` |
+| RF01 | `CadastrarPessoa`, `Pessoa.Criar`, `POST /api/v1/pessoas`, `ReativarAsync` (CPF de pessoa inativa) |
 | RF02 | `ConsultarPessoa`, `GET /api/v1/pessoas/{id}` |
 | RF03 | `ListarPessoas`, `PessoaRepositorio.ListarAsync`, `PaginacaoOptions` |
 | RF04 | `AtualizarPessoa`, `Pessoa.Atualizar`, `ExisteCpfAsync(ignorarId)` |
 | RF05 | `ExcluirPessoa`, `DELETE /api/v1/pessoas/{id}` |
 | Seção 4 (CPF) | `Cpf` Value Object + testes `[Theory]` |
 | Seção 7 (mensagens) | `PessoaErros` |
-| RNF01 | Chave primária `id`; índices em `cpf` e `nome` dependem da pendência P1 |
-| RNF02 | Verificação em `ExisteCpfAsync` + tratamento do erro MySQL 1062; índice único pendente (P1) |
+| RNF01 | Chave primária `id` e índice único `cpf_UNIQUE` |
+| RNF02 | Índice único `cpf_UNIQUE` + tratamento do erro MySQL 1062 |
 | RNF03 | `Cpf.Mascarado()`, repositório sem log de parâmetros SQL |
 | RNF04 | OpenAPI + Scalar |
 | RNF05 | Seção 11 |
@@ -742,6 +766,7 @@ Os testes de integração verificam explicitamente que o CPF é **gravado sem m�
 | SQL espalhado e duplicado conforme o projeto cresce | Regra: SQL só em classes `*Sql` dentro de `Infrastructure`, uma por tabela |
 | Diferença de maiúsculas em nomes de tabela entre Windows e Linux | Nomes em minúsculo definidos explicitamente; testes de integração rodam em container Linux |
 | Servidor MySQL com charset ou collation padrão diferentes | A tabela existente já usa `utf8mb4_0900_ai_ci`; o script de testes replica a mesma collation |
-| CPF duplicado em requisições simultâneas | Pendência P1: criar índice único em `cpf` |
+| CPF duplicado em requisições simultâneas | Índice único `cpf_UNIQUE` + erro 1062 convertido em 409 |
+| Senha commitada por engano no `appsettings.json` | Arquivo versionado com senha vazia e marcado com `--skip-worktree` localmente |
 | Respostas das questões em aberto mudarem decisões | Q1 é a de maior impacto restante; alterar apenas `Sexo` |
 | Listagem lenta com filtro `Contains` em bases grandes | Monitorar; se necessário, busca por prefixo ou índice full-text |

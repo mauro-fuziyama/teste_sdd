@@ -81,7 +81,8 @@ Um CPF é considerado válido quando, depois de removidos os caracteres de másc
 ### RF01 – Cadastrar pessoa
 - Recebe `nome`, `dataNascimento`, `cpf` e `sexo`.
 - Valida todos os campos conforme as seções 3 e 4 e retorna **todos** os erros encontrados de uma vez, não apenas o primeiro.
-- Rejeita o cadastro se já existir uma pessoa com o mesmo CPF.
+- Rejeita o cadastro se já existir uma pessoa **ativa** com o mesmo CPF.
+- Se o CPF pertencer a uma pessoa excluída (inativa), o mesmo registro é reaproveitado: os dados são substituídos pelos do cadastro, `criadoEm` e `atualizadoEm` recebem a data atual, o registro volta a ficar ativo e mantém o seu `id`. A resposta é a mesma de um cadastro novo.
 - Em caso de sucesso, retorna a pessoa criada com `id`, `criadoEm` e `atualizadoEm`, e informa a localização do novo recurso.
 
 ### RF02 – Consultar pessoa por id
@@ -96,12 +97,12 @@ Um CPF é considerado válido quando, depois de removidos os caracteres de másc
 
 ### RF04 – Atualizar pessoa
 - Substitui todos os campos editáveis da pessoa (`nome`, `dataNascimento`, `cpf`, `sexo`), aplicando as mesmas validações do cadastro.
-- Se o CPF for alterado, o novo CPF não pode pertencer a outra pessoa.
+- Se o CPF for alterado, o novo CPF não pode pertencer a outra pessoa, ativa ou inativa.
 - `id` e `criadoEm` não podem ser alterados; `atualizadoEm` é atualizado automaticamente.
 - Se a pessoa não existir, informa que o recurso não foi encontrado.
 
 ### RF05 – Excluir pessoa
-- Remove a pessoa correspondente ao `id`. Ver questão em aberto Q2.
+- Exclui logicamente a pessoa correspondente ao `id`: o registro é marcado como inativo e mantido no banco (US05).
 - Se a pessoa não existir, informa que o recurso não foi encontrado.
 
 ## 6. Contrato da API (visão funcional)
@@ -191,13 +192,15 @@ Os erros seguem o padrão Problem Details (RFC 9457), com mensagens em portuguê
 - **CA08:** Dada uma pessoa existente, quando eu alterar seu CPF para o CPF de outra pessoa, então recebo 409 e nada é alterado.
 - **CA09:** Dada uma listagem com filtro `nome=joao`, então recebo as pessoas cujo nome contém "João", "joão" ou "JOAO".
 - **CA10:** Dada uma pessoa excluída, quando eu consultá-la, então recebo 404.
+- **CA11:** Dada uma pessoa excluída, quando eu cadastrar uma pessoa com o mesmo CPF, então recebo 201 com o mesmo `id` do registro excluído, os novos dados e `criadoEm` igual à data do novo cadastro.
+- **CA12:** Dada uma pessoa excluída, quando outra pessoa tentar mudar o seu CPF para o dela, então recebo 409.
 
 ## 10. Questões em aberto
 
 | ID | Questão | Proposta atual |
 |----|---------|----------------|
 | Q1 | Quais valores o campo `sexo` deve aceitar? Apenas `M`/`F` ou também outras opções? | `M`, `F`, `O`, `N` |
-| Q2 | A exclusão deve ser física (remove o registro) ou lógica (marca como inativo e mantém o histórico)? | Física |
+| Q2 | A exclusão deve ser física (remove o registro) ou lógica (marca como inativo e mantém o histórico)? | **Respondida:** lógica (US05). Cadastro com CPF de pessoa inativa reaproveita e reativa o registro |
 | Q3 | Existe idade mínima para cadastro (ex.: apenas maiores de 18 anos)? | Sem idade mínima |
 | Q4 | É necessária atualização parcial (`PATCH`) além da completa (`PUT`)? | Apenas `PUT` |
 | Q5 | O CPF pode ser alterado depois do cadastro ou deve ser imutável? | Pode ser alterado, respeitando a unicidade |

@@ -25,11 +25,11 @@
 - Máximo 2 níveis de indentação por método; métodos curtos com nomes descritivos
 - Campos privados com prefixo `_` (`_campo`)
 - Asserções nos testes com AwesomeAssertions
-- Senhas nunca no repositório: conexão lida do .env (DotNetEnv), que não é versionado
-- Tabela existente `pessoa` (id INT AUTO_INCREMENT); exclusão é lógica (ativo = 0)
+- Todas as configurações no appsettings.json, inclusive a connection string. No Git ele fica com a senha vazia (preencher localmente e usar `git update-index --skip-worktree`); em produção a pipeline substitui o arquivo
+- Tabela existente `pessoa` (id INT AUTO_INCREMENT, índice único `cpf_UNIQUE`); exclusão é lógica (ativo = 0); cadastro com CPF de pessoa inativa reaproveita e reativa o registro
 
 ## Comandos
-- Banco: MySQL local já existente (schema e tabelas criados); conexão em .env (ver .env.example)
+- Banco: MySQL local já existente (schema e tabelas criados); conexão em src/CadastroPessoas.Api/appsettings.json
 - Build: dotnet build
 - Testes: dotnet test
 - Rodar API: dotnet run --project src/CadastroPessoas.Api

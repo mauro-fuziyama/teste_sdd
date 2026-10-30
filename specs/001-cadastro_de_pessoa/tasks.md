@@ -144,7 +144,7 @@ dotnet add src/CadastroPessoas.Api            reference src/CadastroPessoas.Appl
 | `Domain` | nenhum |
 | `Application` | nenhum |
 | `Infrastructure` | `Dapper`, `MySqlConnector`, `Microsoft.Extensions.Options.ConfigurationExtensions` |
-| `Api` | `Microsoft.AspNetCore.OpenApi` (já vem no template), `Scalar.AspNetCore`, `DotNetEnv` |
+| `Api` | `Microsoft.AspNetCore.OpenApi` (já vem no template), `Scalar.AspNetCore` |
 | Todos os testes | `xunit`, `xunit.runner.visualstudio`, `Microsoft.NET.Test.Sdk` (já vêm no template), `AwesomeAssertions` |
 | `Application.Tests` | `Microsoft.Extensions.TimeProvider.Testing` |
 | `Infrastructure.IntegrationTests` | `Testcontainers.MySql` |
@@ -167,20 +167,21 @@ Criar as pastas da seção 3 do plano. Os arquivos de código serão preenchidos
 - [x] `Api`: `Controllers/`, `Contratos/`, `Mapeamentos/`, `Configuracoes/`
 - [x] `Api/appsettings.json` com o conteúdo da seção 8 do plano
 - [x] `Api/appsettings.Development.json` com nível de log `Debug` para o namespace da aplicação
-- [x] `Api/Program.cs` reduzido ao mínimo (carga do `.env` com DotNetEnv, builder, controllers, `app.Run()`), sem o endpoint de exemplo do template
+- [x] `Api/Program.cs` reduzido ao mínimo (builder, controllers, `app.Run()`), sem o endpoint de exemplo do template
 
 ### 1.8 Banco de dados local
 
-- [x] Usar o MySQL 8.0 local já existente (schema e tabela `pessoa` criados). Não há Docker Compose nem scripts de criação executados pela aplicação
-- [x] Criar `.env.example` com `DB_SERVER`, `DB_PORT`, `DB_NAME`, `DB_USER` e `DB_PASSWORD` (sem valores)
-- [x] Manter o `.env` com os valores reais apenas localmente e confirmar que está no `.gitignore`
-- [x] Conferir a conexão com os dados do `.env` e a estrutura da tabela `pessoa` (plan.md 7.1)
+- [x] Usar o MySQL 8.0 local já existente (schema, tabela `pessoa` e índice único `cpf_UNIQUE` criados). Não há Docker Compose nem scripts de criação executados pela aplicação
+- [x] Connection string no `appsettings.json`, versionada com a senha vazia; senha preenchida só localmente, com `git update-index --skip-worktree`
+- [x] Conferir a conexão e a estrutura da tabela `pessoa` (plan.md 7.1)
+
+> Revisão (2026-10-30): a configuração inicial por `.env` + DotNetEnv foi substituída por `appsettings.json` (pendência P3 do plano).
 
 ### Critérios de conclusão
 
 - [x] `dotnet build` termina sem erros e sem warnings
 - [x] `dotnet test` executa (ainda sem testes) sem falhas
-- [x] É possível conectar ao MySQL local com os dados do `.env`
+- [x] É possível conectar ao MySQL local com a connection string do `appsettings.json`
 - [x] `dotnet run --project src/CadastroPessoas.Api` sobe a API sem erros
 - [x] `Domain` e `Application` não têm nenhum pacote NuGet
 - [x] Nenhuma senha aparece em arquivo versionado (`git status` e `git diff` conferidos)
@@ -310,7 +311,8 @@ Criar as pastas da seção 3 do plano. Os arquivos de código serão preenchidos
 - [ ] `CadastrarPessoa` + testes:
   - [ ] Sucesso grava e retorna a pessoa
   - [ ] Dados inválidos retornam erros de validação sem gravar
-  - [ ] CPF já existente retorna `CpfDuplicado` (CPF de pessoa inativa: aguarda pendência P2 do plano)
+  - [ ] CPF de pessoa ativa retorna `CpfDuplicado`
+  - [ ] CPF de pessoa inativa reaproveita o registro: mesmo `id`, dados novos, `CriadoEm` e `AtualizadoEm` com a data atual e pessoa ativa (CA11)
   - [ ] `CpfDuplicadoException` lançada pelo repositório vira `CpfDuplicado`
 - [ ] `ConsultarPessoa` + testes: encontrada; não encontrada → `NaoEncontrada`
 - [ ] `ListarPessoas` + testes: paginação, cálculo de `TotalPaginas`, filtro de CPF com máscara é normalizado
@@ -319,6 +321,7 @@ Criar as pastas da seção 3 do plano. Os arquivos de código serão preenchidos
   - [ ] Não encontrada
   - [ ] CPF de outra pessoa → `CpfDuplicado` e nada é alterado (CA08)
   - [ ] Manter o próprio CPF não conta como duplicado
+  - [ ] CPF de pessoa inativa → `CpfDuplicado` (CA12)
 - [ ] `ExcluirPessoa` + testes: sucesso (pessoa desativada, não removida); não encontrada
 - [ ] Usar `FakeTimeProvider` para controlar a data atual nos testes
 
@@ -332,7 +335,7 @@ Criar as pastas da seção 3 do plano. Os arquivos de código serão preenchidos
 
 **Depende de:** 1 · **Requisitos:** plan.md 7.1, 7.6 e 8
 
-- [ ] Criar `tests/Scripts/criar_tabela_pessoa.sql` replicando exatamente o DDL da tabela `pessoa` (plan.md 7.1)
+- [ ] Criar `tests/Scripts/criar_tabela_pessoa.sql` replicando exatamente o DDL da tabela `pessoa`, inclusive o índice único `cpf_UNIQUE` (plan.md 7.1)
 - [ ] Incluir o script como arquivo vinculado nos dois projetos de testes de integração (copiado para a saída)
 - [ ] Criar `Persistencia/BancoOptions.cs` (`TimeoutComandoSegundos`) com validação
 - [ ] Teste de integração (Testcontainers, MySQL 8.0): executar o script em um banco vazio cria a tabela `pessoa` com as mesmas colunas do servidor local
@@ -347,7 +350,7 @@ Criar as pastas da seção 3 do plano. Os arquivos de código serão preenchidos
 
 **Depende de:** 5, 8 · **Requisitos:** plan.md 7.2 e 7.3
 
-- [ ] `IConexaoFactory` e `MySqlConexaoFactory` (monta a connection string a partir das variáveis `DB_*` do `.env` com `MySqlConnectionStringBuilder` e aplica o timeout configurado)
+- [ ] `IConexaoFactory` e `MySqlConexaoFactory` (lê a connection string do `appsettings.json` e aplica o timeout configurado)
 - [ ] `PessoaSql` com todos os comandos da seção 7.3 do plano
 - [ ] `PessoaRegistro` com `ParaEntidade()` e `ParametrosDe(pessoa)`
 - [ ] Testes unitários de `PessoaRegistro`:
@@ -366,16 +369,18 @@ Criar as pastas da seção 3 do plano. Os arquivos de código serão preenchidos
 
 **Depende de:** 6, 9 · **Requisitos:** RF01–RF05, RNF02, RNF03; plan.md 7.4 e 7.5
 
-- [ ] Criar fixture de testes que sobe MySQL 8.0 com Testcontainers e executa `tests/Scripts/criar_tabela_pessoa.sql`
+- [ ] Criar fixture de testes que sobe MySQL 8.0 com Testcontainers, executa `tests/Scripts/criar_tabela_pessoa.sql` e informa a connection string do container à aplicação
 - [ ] Implementar `PessoaRepositorio` com `CommandDefinition` e `CancellationToken` em todas as chamadas
 - [ ] Testes de integração, um ou mais por método:
   - [ ] `AdicionarAsync` grava o CPF sem máscara (conferir com consulta direta na tabela) e retorna o `id` gerado
   - [ ] `ObterPorIdAsync` encontra, não encontra e ignora pessoa inativa
-  - [ ] `ExisteCpfAsync` com e sem `ignorarId`
+  - [ ] `ExisteCpfAsync` com e sem `ignorarId`, considerando pessoas ativas e inativas
+  - [ ] `ObterIdInativoPorCpfAsync` encontra só registro inativo
+  - [ ] `ReativarAsync` substitui os dados, redefine `cadastro` e volta `ativo = 1`
   - [ ] `ListarAsync`: paginação, total, ordenação por nome, filtro por CPF e filtro por nome sem acento (`joao` encontra `João`, CA09)
   - [ ] `AtualizarAsync` não altera `id`, `cadastro` nem `ativo`
   - [ ] `DesativarAsync` marca `ativo = 0`, mantém o registro e ele deixa de aparecer em `ObterPorIdAsync` e `ListarAsync`
-  - [ ] Duas gravações com o mesmo CPF: a segunda lança `CpfDuplicadoException` (erro 1062). Depende da pendência P1 do plano (índice único em `cpf`)
+  - [ ] Duas gravações com o mesmo CPF: a segunda lança `CpfDuplicadoException` (erro 1062 do índice `cpf_UNIQUE`)
 - [ ] `InjecaoDependencia.cs` com o método de extensão que registra fábrica, repositório e options
 - [ ] Conferir que nenhum log contém parâmetros SQL (RNF03)
 
@@ -410,7 +415,7 @@ Criar as pastas da seção 3 do plano. Os arquivos de código serão preenchidos
 - [ ] `POST` retorna 201 com header `Location`
 - [ ] `GET` de listagem aplica `PaginacaoOptions` (padrão e máximo)
 - [ ] `IExceptionHandler` global que registra o erro e retorna 500 genérico
-- [ ] `Program.cs`: carregar o `.env`, registrar casos de uso, infraestrutura, options com `ValidateOnStart`, `TimeProvider.System`, ProblemDetails, OpenAPI e Scalar
+- [ ] `Program.cs`: registrar casos de uso, infraestrutura, options com `ValidateOnStart`, `TimeProvider.System`, ProblemDetails, OpenAPI e Scalar
 - [ ] Documentar exemplos de requisição e resposta no OpenAPI
 - [ ] Teste manual: abrir a UI do Scalar e executar o CRUD completo contra o banco local
 
@@ -436,6 +441,8 @@ Criar as pastas da seção 3 do plano. Os arquivos de código serão preenchidos
   - [ ] CA08 – trocar CPF para o de outra pessoa → 409 e nada alterado
   - [ ] CA09 – filtro `nome=joao` encontra "João"
   - [ ] CA10 – consultar pessoa excluída → 404 (registro continua no banco com `ativo = 0`)
+  - [ ] CA11 – cadastrar CPF de pessoa excluída → 201 com o mesmo `id`, dados novos e `criadoEm` atual
+  - [ ] CA12 – trocar CPF para o de pessoa excluída → 409
 - [ ] Teste extra: CPF gravado sem máscara no banco e retornado com máscara na API
 
 **Critérios de conclusão:** todos os critérios de aceite da spec automatizados e verdes.
