@@ -122,4 +122,13 @@ public class CpfTests
         cpf.Numero.Should().Be(CpfValido);
         cpf.Formatado().Should().Be("529.982.247-25");
     }
+
+    [Theory]
+    [InlineData(" 529.982.247-25 ", "52998224725")]
+    [InlineData("52998224725", "52998224725")]
+    [InlineData("529.982", "529982")]
+    public void RemoverMascaraRetiraPontosHifenEEspacosDasPontas(string entrada, string esperado)
+    {
+        Cpf.RemoverMascara(entrada).Should().Be(esperado);
+    }
 }

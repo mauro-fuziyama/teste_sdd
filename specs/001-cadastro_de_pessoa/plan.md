@@ -57,12 +57,11 @@ Adotadas as propostas da spec até confirmação. Todas são de baixo impacto pa
 | P1 | Faltava índice único em `cpf` (RNF02) | Criado no banco o índice único `cpf_UNIQUE` |
 | P2 | CPF de pessoa inativa impede novo cadastro? | Não: o cadastro reaproveita o registro inativo, atualiza os dados e o reativa |
 | P3 | Senha em texto puro no `.env` × constitution | A constitution foi revista. Todas as configurações ficam no `appsettings.json`; no Git ele é versionado com a senha vazia e a pipeline de produção substitui o arquivo |
+| P4 | Em qual fuso horário se calcula a data de "hoje" para validar a data de nascimento? | Fuso configurável no `appsettings.json` (`Aplicacao:FusoHorario`, ex.: `America/Sao_Paulo`). `RelogioAplicacao` (Application) combina o instante UTC do `TimeProvider` com a data de hoje nesse fuso e entrega um `MomentoAtual(Utc, Hoje)` à entidade. As datas de auditoria continuam em UTC |
 
 ### Pendências em aberto
 
-| ID | Pendência | Impacto |
-|----|-----------|---------|
-| P4 | Em qual fuso horário se calcula a data de "hoje" para validar a data de nascimento? O relógio da aplicação está em UTC; entre 21h e 0h no horário de Brasília, o dia em UTC já é o seguinte | Define como `Pessoa.Criar` converte `agora` em `DateOnly`. Task 5 |
+Nenhuma.
 
 ## 2. Arquitetura
 
@@ -414,6 +413,8 @@ public sealed class CadastrarPessoa(IPessoaRepositorio repositorio, TimeProvider
 }
 ```
 
+Os casos de uso que dependem da data atual recebem `RelogioAplicacao` (e não o `TimeProvider` diretamente), que fornece o `MomentoAtual`: instante UTC para auditoria e data de hoje no fuso configurado para as regras de calendário (P4).
+
 Na reativação, a pessoa criada por `Pessoa.Criar` (com `CriadoEm` e `AtualizadoEm` iguais à data atual) recebe o `id` do registro inativo e substitui todos os dados dele.
 
 ### 5.4 Modelos de entrada e saída
@@ -698,6 +699,9 @@ Todas as configurações ficam no `appsettings.json`, inclusive a connection str
   },
   "Banco": {
     "TimeoutComandoSegundos": 30
+  },
+  "Aplicacao": {
+    "FusoHorario": "America/Sao_Paulo"
   },
   "Logging": {
     "LogLevel": {

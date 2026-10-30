@@ -3,7 +3,7 @@
 - **Feature:** 001-cadastro-pessoa
 - **Spec:** [spec.md](./spec.md)
 - **Plan:** [plan.md](./plan.md)
-- **Status:** Em andamento (Tasks 1 a 4 e 6 concluídas)
+- **Status:** Em andamento (Tasks 1 a 7 concluídas)
 - **Data:** 2026-10-30
 
 ## Como usar este arquivo
@@ -264,19 +264,19 @@ Criar as pastas da seção 3 do plano. Os arquivos de código serão preenchidos
 
 **Depende de:** 3, 4 · **Requisitos:** RF01, RF04, spec seção 7; plan.md 4.3 e 4.4
 
-- [ ] Criar `PessoaErros` com **todas** as mensagens da seção 7 da spec
-- [ ] Criar a entidade `Pessoa` com propriedades `private set`
-- [ ] `Pessoa.Criar(dados, agora)`: valida todos os campos e **acumula todos os erros**
-- [ ] `Pessoa.Atualizar(dados, agora)`: mesma validação; atualiza `AtualizadoEm`; não altera `Id` nem `CriadoEm`
-- [ ] `Pessoa.Restaurar(...)`: reconstrói sem validar e sem gerar novo `Id`
-- [ ] `Id` `int` gerado pelo banco: `0` até a gravação, atribuído com `DefinirId(id)`
-- [ ] `Desativar(agora)` marca `Ativo = false` e atualiza `AtualizadoEm` (exclusão lógica)
-- [ ] Testes:
-  - [ ] Criação válida preenche `CriadoEm` e `AtualizadoEm`, com `Id = 0` e `Ativo = true`
-  - [ ] `Desativar` marca a pessoa como inativa e atualiza `AtualizadoEm`
-  - [ ] Payload com 4 campos inválidos retorna 4 erros (CA05)
-  - [ ] Atualização válida muda os campos e `AtualizadoEm`, mantendo `Id` e `CriadoEm`
-  - [ ] Atualização inválida não altera nenhum campo
+- [x] Criar `PessoaErros` com **todas** as mensagens da seção 7 da spec
+- [x] Criar a entidade `Pessoa` com propriedades `private set`
+- [x] `Pessoa.Criar(dados, agora)`: valida todos os campos e **acumula todos os erros**
+- [x] `Pessoa.Atualizar(dados, agora)`: mesma validação; atualiza `AtualizadoEm`; não altera `Id` nem `CriadoEm`
+- [x] `Pessoa.Restaurar(...)`: reconstrói sem validar e sem gerar novo `Id`
+- [x] `Id` `int` gerado pelo banco: `0` até a gravação, atribuído com `DefinirId(id)`
+- [x] `Desativar(agora)` marca `Ativo = false` e atualiza `AtualizadoEm` (exclusão lógica)
+- [x] Testes:
+  - [x] Criação válida preenche `CriadoEm` e `AtualizadoEm`, com `Id = 0` e `Ativo = true`
+  - [x] `Desativar` marca a pessoa como inativa e atualiza `AtualizadoEm`
+  - [x] Payload com 4 campos inválidos retorna 4 erros (CA05)
+  - [x] Atualização válida muda os campos e `AtualizadoEm`, mantendo `Id` e `CriadoEm`
+  - [x] Atualização inválida não altera nenhum campo
 
 > Observação: `Pessoa.Criar` recebe `DadosPessoa`, que é definido em `Application` no plano. Para manter a regra de dependência, o domínio recebe os campos como parâmetros individuais (ou um record próprio do domínio), e `Application` converte `DadosPessoa` nesses parâmetros.
 
@@ -307,23 +307,24 @@ Criar as pastas da seção 3 do plano. Os arquivos de código serão preenchidos
 
 **Depende de:** 6 · **Requisitos:** RF01–RF05; plan.md 5.3
 
-- [ ] Criar em `Application.Tests` um `PessoaRepositorioEmMemoria` que implementa `IPessoaRepositorio` (usado em todos os testes desta task)
-- [ ] `CadastrarPessoa` + testes:
-  - [ ] Sucesso grava e retorna a pessoa
-  - [ ] Dados inválidos retornam erros de validação sem gravar
-  - [ ] CPF de pessoa ativa retorna `CpfDuplicado`
-  - [ ] CPF de pessoa inativa reaproveita o registro: mesmo `id`, dados novos, `CriadoEm` e `AtualizadoEm` com a data atual e pessoa ativa (CA11)
-  - [ ] `CpfDuplicadoException` lançada pelo repositório vira `CpfDuplicado`
-- [ ] `ConsultarPessoa` + testes: encontrada; não encontrada → `NaoEncontrada`
-- [ ] `ListarPessoas` + testes: paginação, cálculo de `TotalPaginas`, filtro de CPF com máscara é normalizado
-- [ ] `AtualizarPessoa` + testes:
-  - [ ] Sucesso
-  - [ ] Não encontrada
-  - [ ] CPF de outra pessoa → `CpfDuplicado` e nada é alterado (CA08)
-  - [ ] Manter o próprio CPF não conta como duplicado
-  - [ ] CPF de pessoa inativa → `CpfDuplicado` (CA12)
-- [ ] `ExcluirPessoa` + testes: sucesso (pessoa desativada, não removida); não encontrada
-- [ ] Usar `FakeTimeProvider` para controlar a data atual nos testes
+- [x] Criar em `Application.Tests` um `PessoaRepositorioEmMemoria` que implementa `IPessoaRepositorio` (usado em todos os testes desta task)
+- [x] `CadastrarPessoa` + testes:
+  - [x] Sucesso grava e retorna a pessoa
+  - [x] Dados inválidos retornam erros de validação sem gravar
+  - [x] CPF de pessoa ativa retorna `CpfDuplicado`
+  - [x] CPF de pessoa inativa reaproveita o registro: mesmo `id`, dados novos, `CriadoEm` e `AtualizadoEm` com a data atual e pessoa ativa (CA11)
+  - [x] `CpfDuplicadoException` lançada pelo repositório vira `CpfDuplicado`
+- [x] `ConsultarPessoa` + testes: encontrada; não encontrada → `NaoEncontrada`
+- [x] `ListarPessoas` + testes: paginação, cálculo de `TotalPaginas`, filtro de CPF com máscara é normalizado
+- [x] `AtualizarPessoa` + testes:
+  - [x] Sucesso
+  - [x] Não encontrada
+  - [x] CPF de outra pessoa → `CpfDuplicado` e nada é alterado (CA08)
+  - [x] Manter o próprio CPF não conta como duplicado
+  - [x] CPF de pessoa inativa → `CpfDuplicado` (CA12)
+- [x] `ExcluirPessoa` + testes: sucesso (pessoa desativada, não removida); não encontrada
+- [x] Usar `FakeTimeProvider` para controlar a data atual nos testes
+- [x] `RelogioAplicacao` (P4): data de hoje calculada no fuso configurado, com testes da virada de dia entre UTC e o fuso local
 
 **Critérios de conclusão:** cada caso de uso com um único método público; testes verdes.
 
@@ -416,6 +417,7 @@ Criar as pastas da seção 3 do plano. Os arquivos de código serão preenchidos
 - [ ] `GET` de listagem aplica `PaginacaoOptions` (padrão e máximo)
 - [ ] `IExceptionHandler` global que registra o erro e retorna 500 genérico
 - [ ] `Program.cs`: registrar casos de uso, infraestrutura, options com `ValidateOnStart`, `TimeProvider.System`, ProblemDetails, OpenAPI e Scalar
+- [ ] Adicionar `Aplicacao:FusoHorario` ao `appsettings.json` e registrar `RelogioAplicacao` com o `TimeZoneInfo` correspondente (falha na inicialização se o fuso não existir)
 - [ ] Documentar exemplos de requisição e resposta no OpenAPI
 - [ ] Teste manual: abrir a UI do Scalar e executar o CRUD completo contra o banco local
 

@@ -33,8 +33,12 @@ public sealed record Cpf
     public string Mascarado() =>
         $"***.{Numero[3..6]}.{Numero[6..9]}-**";
 
-    private static string RemoverMascara(string entrada) =>
-        entrada.Trim().Replace(".", "", StringComparison.Ordinal).Replace("-", "", StringComparison.Ordinal);
+    public static string RemoverMascara(string entrada)
+    {
+        ArgumentNullException.ThrowIfNull(entrada);
+        return entrada.Trim().Replace(".", "", StringComparison.Ordinal).Replace("-", "", StringComparison.Ordinal);
+    }
+
 
     private static bool EhValido(string digitos) =>
         TemFormatoCorreto(digitos)
