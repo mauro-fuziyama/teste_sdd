@@ -3,7 +3,7 @@
 - **Feature:** 001-cadastro-pessoa
 - **Spec:** [spec.md](./spec.md)
 - **Plan:** [plan.md](./plan.md)
-- **Status:** Em andamento (Tasks 1 a 4 concluídas)
+- **Status:** Em andamento (Tasks 1 a 4 e 6 concluídas)
 - **Data:** 2026-10-30
 
 ## Como usar este arquivo
@@ -290,12 +290,12 @@ Criar as pastas da seção 3 do plano. Os arquivos de código serão preenchidos
 
 **Depende de:** 5 · **Requisitos:** plan.md 5.1, 5.2 e 5.4
 
-- [ ] Modelos em `Application/Pessoas/Modelos/`: `DadosPessoa`, `FiltroPessoas`, `PessoaResultado` (com CPF formatado)
-- [ ] `Application/Comum/ResultadoPaginado.cs` (`Itens`, `Pagina`, `TamanhoPagina`, `TotalItens`, `TotalPaginas`)
-- [ ] Portas de entrada: `ICadastrarPessoa`, `IConsultarPessoa`, `IListarPessoas`, `IAtualizarPessoa`, `IExcluirPessoa`
-- [ ] Porta de saída: `IPessoaRepositorio`
-- [ ] `CpfDuplicadoException` em `Portas/Saida/`
-- [ ] Teste: `PessoaResultado.De(pessoa)` retorna o CPF **com máscara**
+- [x] Modelos em `Application/Pessoas/Modelos/`: `DadosPessoa`, `FiltroPessoas`, `PessoaResultado` (com CPF formatado)
+- [x] `Application/Comum/ResultadoPaginado.cs` (`Itens`, `Pagina`, `TamanhoPagina`, `TotalItens`, `TotalPaginas`)
+- [x] Portas de entrada: `ICadastrarPessoa`, `IConsultarPessoa`, `IListarPessoas`, `IAtualizarPessoa`, `IExcluirPessoa`
+- [x] Porta de saída: `IPessoaRepositorio`
+- [x] `CpfDuplicadoException` em `Portas/Saida/`
+- [x] Teste: `PessoaResultado.De(pessoa)` retorna o CPF **com máscara**
 
 **Critérios de conclusão:** compila; `Application` continua sem pacotes NuGet.
 

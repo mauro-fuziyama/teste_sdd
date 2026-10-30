@@ -59,3 +59,4 @@ Os testes de integração sobem um MySQL 8.0 em container, por isso precisam do 
 - **Versões de pacotes** centralizadas em `Directory.Packages.props`.
 - **Build sem warnings:** `TreatWarningsAsErrors` e analisadores ativos em `Directory.Build.props`.
 - **Banco existente:** a aplicação não cria nem altera tabelas; a exclusão de pessoas é lógica (`ativo = 0`) e um novo cadastro com o CPF de uma pessoa excluída reaproveita e reativa o registro.
+- **Portas da aplicação:** uma interface por caso de uso (`Portas/Entrada`) e o repositório como porta de saída (`Portas/Saida`). `PessoaResultado` já devolve o CPF formatado, concentrando a regra "persistir sem máscara, retornar com máscara" em um só lugar. `CpfDuplicadoException` faz parte do contrato da porta de saída e sinaliza violação do índice único em gravações concorrentes.
