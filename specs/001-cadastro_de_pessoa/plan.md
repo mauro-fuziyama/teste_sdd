@@ -289,6 +289,8 @@ public sealed record Cpf
 }
 ```
 
+Na implementação, `Cpf.Criar` verifica antes se a entrada é nula, vazia ou só espaços e, nesse caso, retorna `PessoaErros.CpfObrigatorio` ("O campo cpf é obrigatório.", spec seção 7). Os demais casos inválidos retornam `PessoaErros.CpfInvalido`. `Cpf` também expõe `Mascarado()` (logs, seção 9) e `Restaurar(numero)` (repositório).
+
 ### 4.3 Entidade `Pessoa`
 
 - Propriedades com `private set`, alteradas apenas por métodos da própria entidade.

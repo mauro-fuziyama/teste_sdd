@@ -3,7 +3,7 @@
 - **Feature:** 001-cadastro-pessoa
 - **Spec:** [spec.md](./spec.md)
 - **Plan:** [plan.md](./plan.md)
-- **Status:** Em andamento (Tasks 1 e 2 concluídas)
+- **Status:** Em andamento (Tasks 1 a 3 concluídas)
 - **Data:** 2026-10-30
 
 ## Como usar este arquivo
@@ -213,20 +213,20 @@ Criar as pastas da seção 3 do plano. Os arquivos de código serão preenchidos
 
 **Depende de:** 2 · **Requisitos:** spec seções 3 e 4, RNF03; plan.md 4.2
 
-- [ ] Escrever primeiro os testes em `Domain.Tests/Pessoas/CpfTests.cs`, com `[Theory]` cobrindo **todos** os exemplos da seção 4 da spec:
-  - [ ] `529.982.247-25` e `52998224725` → válidos
-  - [ ] `529.982.247-26` → inválido (dígito verificador)
-  - [ ] `111.111.111-11` e demais sequências de dígitos iguais → inválidos
-  - [ ] `5299822472` → inválido (10 dígitos)
-  - [ ] `529.982.247-2A` → inválido (letra)
-  - [ ] vazio, espaços e `null` → inválidos
-- [ ] Implementar `Domain/Pessoas/ValueObjects/Cpf.cs` conforme o plano (`Criar`, `Numero`, `Formatado`)
-- [ ] Adicionar `Mascarado()` → `***.982.247-**` (para logs) e `Restaurar(string numero)` (para o repositório)
-- [ ] Testes adicionais:
-  - [ ] `Numero` sempre tem 11 dígitos sem máscara
-  - [ ] `Formatado()` retorna `529.982.247-25`
-  - [ ] `Mascarado()` retorna `***.982.247-**`
-  - [ ] Dois `Cpf` com o mesmo número são iguais (igualdade por valor)
+- [x] Escrever primeiro os testes em `Domain.Tests/Pessoas/CpfTests.cs`, com `[Theory]` cobrindo **todos** os exemplos da seção 4 da spec:
+  - [x] `529.982.247-25` e `52998224725` → válidos
+  - [x] `529.982.247-26` → inválido (dígito verificador)
+  - [x] `111.111.111-11` e demais sequências de dígitos iguais → inválidos
+  - [x] `5299822472` → inválido (10 dígitos)
+  - [x] `529.982.247-2A` → inválido (letra)
+  - [x] vazio, espaços e `null` → inválidos
+- [x] Implementar `Domain/Pessoas/ValueObjects/Cpf.cs` conforme o plano (`Criar`, `Numero`, `Formatado`)
+- [x] Adicionar `Mascarado()` → `***.982.247-**` (para logs) e `Restaurar(string numero)` (para o repositório)
+- [x] Testes adicionais:
+  - [x] `Numero` sempre tem 11 dígitos sem máscara
+  - [x] `Formatado()` retorna `529.982.247-25`
+  - [x] `Mascarado()` retorna `***.982.247-**`
+  - [x] Dois `Cpf` com o mesmo número são iguais (igualdade por valor)
 
 **Critérios de conclusão:** todos os exemplos da spec cobertos; nenhum método com mais de 2 níveis de indentação.
 
