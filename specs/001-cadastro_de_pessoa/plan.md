@@ -58,6 +58,12 @@ Adotadas as propostas da spec até confirmação. Todas são de baixo impacto pa
 | P2 | CPF de pessoa inativa impede novo cadastro? | Não: o cadastro reaproveita o registro inativo, atualiza os dados e o reativa |
 | P3 | Senha em texto puro no `.env` × constitution | A constitution foi revista. Todas as configurações ficam no `appsettings.json`; no Git ele é versionado com a senha vazia e a pipeline de produção substitui o arquivo |
 
+### Pendências em aberto
+
+| ID | Pendência | Impacto |
+|----|-----------|---------|
+| P4 | Em qual fuso horário se calcula a data de "hoje" para validar a data de nascimento? O relógio da aplicação está em UTC; entre 21h e 0h no horário de Brasília, o dia em UTC já é o seguinte | Define como `Pessoa.Criar` converte `agora` em `DateOnly`. Task 5 |
+
 ## 2. Arquitetura
 
 ### Visão hexagonal
@@ -225,9 +231,9 @@ Cada campo com regra é um Value Object imutável, com construtor privado e um m
 | Value Object | Responsabilidade |
 |--------------|------------------|
 | `Nome` | Remove espaços nas pontas, reduz espaços repetidos, valida tamanho 3–150 |
-| `DataNascimento` | Valida que não é futura e que a idade não passa de 130 anos (recebe a data atual como parâmetro) |
+| `DataNascimento` | Valida que não é futura e que a idade não passa de 130 anos (recebe a data de hoje como `DateOnly`) |
 | `Cpf` | Remove máscara, valida o algoritmo da spec (seção 4), expõe `Numero` (sem máscara) e `Formatado()` |
-| `Sexo` | Converte `M`, `F`, `O`, `N` para o enum `TipoSexo` |
+| `Sexo` | Converte `M`, `F`, `O`, `N` para o enum `TipoSexo`. Aceita minúsculas e espaços nas pontas e guarda o código em maiúscula (decisão de 2026-10-30) |
 
 **Campos especiais com máscara (CPF, e no futuro telefone e CEP):** o Value Object guarda apenas os dígitos em `Numero`, que é o valor persistido. A máscara é aplicada somente na saída, pelo método `Formatado()`. Novos campos especiais seguem a mesma estrutura.
 

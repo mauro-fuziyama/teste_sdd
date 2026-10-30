@@ -3,7 +3,7 @@
 - **Feature:** 001-cadastro-pessoa
 - **Spec:** [spec.md](./spec.md)
 - **Plan:** [plan.md](./plan.md)
-- **Status:** Em andamento (Tasks 1 a 3 concluídas)
+- **Status:** Em andamento (Tasks 1 a 4 concluídas)
 - **Data:** 2026-10-30
 
 ## Como usar este arquivo
@@ -238,21 +238,21 @@ Criar as pastas da seção 3 do plano. Os arquivos de código serão preenchidos
 
 **Depende de:** 2 · **Requisitos:** spec seções 3 e 7; plan.md 4.2 e 4.5
 
-- [ ] `Nome`: testes e implementação
-  - [ ] Remove espaços nas pontas e reduz espaços internos repetidos
-  - [ ] Aceita 3 e 150 caracteres; rejeita 2 e 151
-  - [ ] Rejeita vazio, só espaços e `null` (mensagem de campo obrigatório)
-- [ ] `DataNascimento`: testes e implementação (recebe a data atual como parâmetro)
-  - [ ] Aceita hoje e datas passadas
-  - [ ] Rejeita amanhã (data futura)
-  - [ ] Aceita exatamente 130 anos; rejeita 130 anos e 1 dia
-  - [ ] Rejeita `null`
-- [ ] `Sexo`: testes e implementação
-  - [ ] Aceita `M`, `F`, `O`, `N` (definir se aceita minúsculas e documentar a decisão no teste)
-  - [ ] Rejeita qualquer outro valor e `null`
-  - [ ] Expõe `Codigo` (para persistência)
-- [ ] Limites como constantes nomeadas (`TamanhoMinimo`, `TamanhoMaximo`, `IdadeMaximaAnos`)
-- [ ] Cada Value Object com método `Restaurar` para uso do repositório
+- [x] `Nome`: testes e implementação
+  - [x] Remove espaços nas pontas e reduz espaços internos repetidos
+  - [x] Aceita 3 e 150 caracteres; rejeita 2 e 151
+  - [x] Rejeita vazio, só espaços e `null` (mensagem de campo obrigatório)
+- [x] `DataNascimento`: testes e implementação (recebe a data atual como parâmetro)
+  - [x] Aceita hoje e datas passadas
+  - [x] Rejeita amanhã (data futura)
+  - [x] Aceita exatamente 130 anos; rejeita 130 anos e 1 dia
+  - [x] Rejeita `null`
+- [x] `Sexo`: testes e implementação
+  - [x] Aceita `M`, `F`, `O`, `N`; minúsculas e espaços nas pontas são aceitos e normalizados para maiúscula (decisão documentada no teste)
+  - [x] Rejeita qualquer outro valor e `null`
+  - [x] Expõe `Codigo` (para persistência)
+- [x] Limites como constantes nomeadas (`TamanhoMinimo`, `TamanhoMaximo`, `IdadeMaximaAnos`)
+- [x] Cada Value Object com método `Restaurar` para uso do repositório
 
 **Critérios de conclusão:** mensagens idênticas às da seção 7 da spec; testes verdes.
 
