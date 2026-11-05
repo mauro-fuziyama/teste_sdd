@@ -11,6 +11,8 @@
 * Quando for uma busca por nome o sistema deve usar "contém", ou seja o valor fornecido é parte do campo nome. Deverá retornar uma lista de registros.
 * Não usar paginação no retorno da lista de pessoa.
 * Na busca por cpf e Id o valor deve ser exato e retornar apenas um registro
+* Na busca por nome, o sistema deve rejeitar valor vazio ou só com espaços.
+* O sistema deve informar quando o registro a consultar, atualizar ou excluir não existir.
 
 ## Modelo de dados da pessoa
 | Nome | Tipo | Obrigatorio | Validações | Observação |

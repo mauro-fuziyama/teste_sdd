@@ -52,7 +52,9 @@
     * Consultar lista (get): api/pessoa/nome/valor
     * Atualizar (put): api/pessoa/id
     * Excluir (delete): api/pessoa/id
-* Implementar em Middlewares/ o tratamento de erros, com 400 para regras de negócio e 500 para falhas de servidor, sempre com a lista Erros.
+* Implementar em Middlewares/ o tratamento de erros, com 400 para regras de negócio, 404 para registro inexistente e 500 para falhas de servidor, sempre com a lista Erros.
+* Responder com 400 e a lista Erros quando o id não for numérico, o JSON estiver malformado, o corpo estiver ausente ou a datadenascimento estiver fora do formato AAAA-MM-DD.
+* Rejeitar com 400 a pesquisa por nome com valor vazio ou só com espaços, na aplicação, com teste em tests/CadastroPessoas.Application.Tests.
 * Implementar o Swagger no projeto para o ambiente de desenvolvimento. Manter o Swagger disponível apenas no ambiente de desenvolvimento.
 
 ## Tarefa 6 - Container

@@ -9,7 +9,7 @@
 
 | Spec | Status | Tarefas | Observação |
 |------|--------|---------|------------|
-| `001-cadastro_de_pessoa` | 🔄 | 4/6 | Tarefas 1 a 4 concluídas no branch `worktree-tarefa-4-infraestrutura` (D-010). Tarefa 5 aguarda esclarecimento |
+| `001-cadastro_de_pessoa` | 🔄 | 5/6 | Tarefas 1 a 5 concluídas no branch `worktree-tarefa-4-infraestrutura` (D-010). Tarefa 6 aguarda esclarecimento |
 
 ## Em andamento
 
@@ -19,8 +19,8 @@
 - [x] Tarefa 2 — Domínio (commit só no branch da Tarefa 4)
 - [x] Tarefa 3 — Aplicação (commit só no branch da Tarefa 4)
 - [x] Tarefa 4 — Infraestrutura (commit só no branch da Tarefa 4)
-- [ ] Tarefa 5 — API ⛔ ← **atual**; aguarda as dúvidas em `active-context.md` (Swagger já configurado só para desenvolvimento; o restante está pendente)
-- [ ] Tarefa 6 — Container (não há Dockerfile)
+- [x] Tarefa 5 — API (commit só no branch da Tarefa 4)
+- [ ] Tarefa 6 — Container ⛔ ← **atual**; aguarda as dúvidas em `active-context.md` (não há Dockerfile)
 
 ### Estado verificado em 2026-11-05
 
@@ -28,10 +28,10 @@
 |------|--------|
 | Solution | 4 projetos em `src/` e 3 em `tests/`, em .NET 10 (SDK 10.0.403) |
 | Pacotes | Dapper, MySqlConnector, Swashbuckle.AspNetCore e xUnit referenciados |
-| Código | Domínio, aplicação e infraestrutura implementados, além do `Program.cs`; as pastas da Api ainda têm apenas `.gitkeep` |
+| Código | Domínio, aplicação, infraestrutura e API implementados |
 | Build | 0 erros e 0 avisos |
-| Testes | 110 aprovados: 55 em `CadastroPessoas.Domain.Tests`, 18 em `CadastroPessoas.Application.Tests` e 37 em `CadastroPessoas.Infrastructure.Tests` |
-| Rotas da API | Nenhuma implementada |
+| Testes | 113 aprovados: 55 em `CadastroPessoas.Domain.Tests`, 21 em `CadastroPessoas.Application.Tests` e 37 em `CadastroPessoas.Infrastructure.Tests` |
+| Rotas da API | As seis implementadas e chamadas com a API rodando, contra o MySQL local; Swagger responde em desenvolvimento e retorna 404 em produção |
 | `CHAVE_DE_SEGURANCA` | Definida; decodifica para 32 bytes (256 bits) |
 | Senha no `appsettings.json` local | Descriptografada com sucesso no formato da D-001 e aceita pelo MySQL |
 | Senha nas versões commitadas do `appsettings.json` | Nenhum valor no histórico |
@@ -48,7 +48,8 @@ Nenhuma spec concluída.
 
 ## Dívida técnica / pendências transversais
 
-- [ ] Levar o reinício do projeto e a Tarefa 4 para o `master`. Hoje estão só no branch `worktree-tarefa-4-infraestrutura` (D-010). Em espera: o responsável pediu para não commitar por enquanto fora desse branch.
+- [ ] Levar o reinício do projeto e as Tarefas 4 e 5 para o `master`. Hoje estão só no branch `worktree-tarefa-4-infraestrutura` (D-010). Em espera: o responsável pediu para não commitar por enquanto fora desse branch.
+- [ ] A API não tem testes automatizados: o `tasks.md` não pede o projeto, e a verificação da Tarefa 5 foi manual.
 - [ ] Definir um remoto para o repositório; hoje não há nenhum.
 - [ ] Definir o que fazer com `memory-bank/`, que parece ser só uma cópia do modelo de `CLAUDE.md`.
 - [ ] O arquivo está como `CLAUDE.MD` no disco e `CLAUDE.md` no Git; a diferença pode causar problemas em sistemas que diferenciam maiúsculas.

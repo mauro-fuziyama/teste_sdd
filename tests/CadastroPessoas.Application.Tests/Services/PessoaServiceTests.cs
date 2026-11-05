@@ -140,6 +140,18 @@ public class PessoaServiceTests
         Assert.Empty(await _servico.PesquisarPorNomeAsync("Inexistente"));
     }
 
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    [InlineData(null)]
+    public async Task PesquisarPorNome_ComValorEmBranco_LancaErroDeNomeObrigatorio(string? nomeEmBranco)
+    {
+        var excecao = await Assert.ThrowsAsync<ValidacaoException>(
+            () => _servico.PesquisarPorNomeAsync(nomeEmBranco));
+
+        Assert.Equal([ErrosDePessoa.NomeDaPesquisaObrigatorio], excecao.Erros);
+    }
+
     [Fact]
     public async Task Atualizar_ComDadosValidos_GravaOsDadosESoAlteraDataAtualizacao()
     {

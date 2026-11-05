@@ -51,7 +51,9 @@ Dependências entre projetos: `Api → Application, Infrastructure`; `Infrastruc
 - Dentro de `UseCases/Pessoa/`, a entidade é referenciada pelo alias `PessoaEntity`, porque `Pessoa` também é o nome do namespace.
 - `Pessoa.Criar` valida os dados de entrada. `Pessoa.Reconstituir` serve só para dados vindos do banco e não valida nome nem data.
 - Métodos assíncronos têm o sufixo `Async`.
-- O tratamento de erros da API fica em `Api/Middlewares`: 400 para regras de negócio e 500 para falhas de servidor, sempre com a lista `Erros`.
+- O tratamento de erros da API fica em `Api/Middlewares`: 400 para regras de negócio, 404 para registro inexistente e 500 para falhas de servidor, sempre com a lista `Erros`. O 500 usa mensagem genérica; o detalhe fica só no log.
+- Os nomes do JSON são sempre definidos com `[property: JsonPropertyName(...)]` nos DTOs.
+- Parâmetros de rota do tipo texto são `string?`, para o valor em branco chegar à regra de negócio em vez de ser rejeitado pelo `[ApiController]` (D-014).
 - O Swagger fica disponível apenas em desenvolvimento.
 - Datas usam o horário local (D-005).
 
@@ -67,6 +69,7 @@ Dependências entre projetos: `Api → Application, Infrastructure`; `Infrastruc
 - Framework: xUnit.
 - Cada camada testa no projeto `tests/CadastroPessoas.<Camada>.Tests`. O `tasks.md` não pede projeto de testes para a API.
 - Comandos: `dotnet build CadastroPessoas.sln` e `dotnet test CadastroPessoas.sln`.
+- A API não tem testes automatizados; ao alterá-la, chame as rotas com a aplicação rodando (`dotnet run --project src/CadastroPessoas.Api --launch-profile http`).
 - Testes de infraestrutura usam o `raspadinha_dev` (D-008), com a conexão do `appsettings.json` local e a `CHAVE_DE_SEGURANCA`. Cada teste gera os próprios CPFs com `banco.GerarCpfParaRemoverAoFinal()` e usa `CriarMarcadorUnico()` nos nomes pesquisados, para não depender dos dados existentes.
 - Classes de teste que usam o banco ficam na coleção `ColecaoDoBancoDeTeste.Nome`.
 

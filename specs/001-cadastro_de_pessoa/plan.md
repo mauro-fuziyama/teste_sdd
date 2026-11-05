@@ -35,9 +35,11 @@
     * Retorna 200 em caso retorne 0 ou mais registros.
     * Retorna 400 caso caso ocorra erro. 
 * Atualizar (Put): api/pessoa/id
+    * Retorna 404 caso o registro não exista.
     * Retorna 200 em caso de sucesso. 
     * Retorna 400 caso ocorra alguma falha.
 * Excluir (delete): api/pessoa/id
+    * Retorna 404 caso o registro não exista.
     * Retorna 200 em caso de sucesso.
     * Retorna 400 caso ocorra alguma falha.
 
@@ -45,6 +47,11 @@
 * Para falhas de servidor retornar 500 e a lista de errrs. Os erros 400 devem ser para regras de negócios.
 * Um registro já gravado com CPF inválido é tratado como falha de servidor: a leitura lança RegistroCorrompidoException e a API retorna 500, sem expor o CPF. Na pesquisa por nome, uma única linha nessa situação faz toda a pesquisa falhar.
 * A lista Erros traz todos os erros de validação encontrados na requisição.
+* As respostas 404 trazem a lista Erros, com a mensagem de pessoa não encontrada.
+* Id não numérico, JSON malformado, corpo ausente e datadenascimento fora do formato AAAA-MM-DD retornam 400 com a lista Erros. Nesses casos a requisição não chega à validação de negócio, então os demais campos não são avaliados.
+* Na pesquisa por nome, valor vazio ou só com espaços é rejeitado com 400.
+* A resposta 500 traz na lista Erros uma mensagem genérica, sem detalhes internos. O detalhe da falha fica apenas no log.
+* Na consulta, datadenascimento não informada é retornada como null.
 * No Atualizar (Put), cpf vazio ou omitido é rejeitado com 400.
 * IPessoaService é a única entrada da aplicação usada pela API. A classe PessoaService implementa essa interface e chama os casos de uso.
 
@@ -194,11 +201,18 @@ CREATE TABLE `pessoa` (
 │       │   └── PessoaController.cs
 │       │
 │       ├── DTOs/
-│       │   └── PessoaRequest.cs
+│       │   ├── PessoaRequest.cs
+│       │   ├── PessoaResponse.cs
+│       │   ├── PessoaCriadaResponse.cs
+│       │   ├── ListaDePessoasResponse.cs
+│       │   └── ErrosResponse.cs
 │       │
 │       ├── Mappers/
+│       │   ├── PessoaMapper.cs
+│       │   └── ErrosDeRequisicaoMapper.cs
 │       │
 │       ├── Middlewares/
+│       │   └── TratamentoDeErrosMiddleware.cs
 │       │
 │       └── Program.cs
 │

@@ -9,6 +9,9 @@
 
 | ID | Data | Título | Status |
 |----|------|--------|--------|
+| D-014 | 2026-11-05 | Pesquisa por nome em branco rejeitada | Aceita |
+| D-013 | 2026-11-05 | Requisição malformada retorna 400 com a lista Erros | Aceita |
+| D-012 | 2026-11-05 | Registro inexistente retorna 404 com a lista Erros | Aceita |
 | D-011 | 2026-11-05 | DependencyInjection.cs também registra a aplicação | Aceita |
 | D-010 | 2026-11-05 | Commit da Tarefa 4 apenas em branch próprio | Aceita |
 | D-009 | 2026-11-05 | CPF inválido lido do banco é falha de servidor | Aceita |
@@ -20,6 +23,65 @@
 | D-003 | 2026-11-04 | Segredos de produção no AWS Secrets Manager via ECS | Aceita |
 | D-002 | 2026-11-04 | appsettings.json apenas no computador local | Aceita |
 | D-001 | 2026-11-04 | Formato do valor criptografado da senha | Aceita |
+
+---
+
+## D-014 — Pesquisa por nome em branco rejeitada
+
+- **Data:** 2026-11-05
+- **Status:** Aceita
+- **Spec relacionada:** `specs/001-cadastro_de_pessoa/`
+
+**Contexto:** a spec não definia a pesquisa com valor só de espaços, e o valor era repassado como veio.
+
+**Decisão:** `PesquisarPessoaUseCase` rejeita valor nulo, vazio ou só com espaços com `ValidacaoException` e `ErrosDePessoa.NomeDaPesquisaObrigatorio`, resultando em 400.
+
+**Motivo:** definição do responsável pelo projeto.
+
+**Alternativas descartadas:**
+- Repassar como veio — um espaço retornaria todo nome composto.
+- Remover os espaços e listar tudo — sem paginação, a resposta poderia ser muito grande.
+
+**Consequências:** o parâmetro de rota e `IPessoaService.PesquisarPorNomeAsync` aceitam `string?`, porque o ASP.NET converte o valor em branco em `null` e o `[ApiController]` o rejeitaria antes da regra de negócio, com a mensagem errada.
+
+---
+
+## D-013 — Requisição malformada retorna 400 com a lista Erros
+
+- **Data:** 2026-11-05
+- **Status:** Aceita
+- **Spec relacionada:** `specs/001-cadastro_de_pessoa/`
+
+**Contexto:** a resposta automática de `[ApiController]` usa `ProblemDetails`, e o plano não citava id não numérico, JSON malformado nem data fora do formato.
+
+**Decisão:** esses casos retornam 400 com a lista `Erros`, por meio de `InvalidModelStateResponseFactory` e `ErrosDeRequisicaoMapper`, com mensagens fixas em português.
+
+**Motivo:** definição do responsável pelo projeto. As mensagens fixas também evitam expor tipos internos.
+
+**Alternativas descartadas:**
+- Restrição de inteiro na rota — id não numérico retornaria 404 sem a lista `Erros`.
+
+**Consequências:** com a data fora do formato, a desserialização para antes da validação de negócio, e a resposta não traz os erros dos demais campos. É um limite aceito à regra de reunir todos os erros (D-007).
+
+---
+
+## D-012 — Registro inexistente retorna 404 com a lista Erros
+
+- **Data:** 2026-11-05
+- **Status:** Aceita
+- **Spec relacionada:** `specs/001-cadastro_de_pessoa/`
+
+**Contexto:** o `plan.md` previa só 200 e 400 em PUT e DELETE e não definia o corpo do 404 das consultas.
+
+**Decisão:** PUT e DELETE de id inexistente retornam 404, e todo 404 da API traz a lista `Erros`, com a mensagem de pessoa não encontrada.
+
+**Motivo:** definição do responsável pelo projeto. Mantém as rotas coerentes e os erros em um único formato.
+
+**Alternativas descartadas:**
+- 400 em PUT e DELETE — o cliente só distinguiria os casos pela mensagem.
+- 404 com corpo vazio — criaria uma exceção ao formato de erros.
+
+**Consequências:** o controller lança `PessoaNaoEncontradaException` na consulta sem registro, e o middleware trata todos os 404. Rotas que não existem continuam retornando 404 sem corpo, pelo próprio ASP.NET.
 
 ---
 

@@ -9,7 +9,7 @@ public interface IPessoaService
     Task<int> CriarAsync(CriarPessoaInput dados);
     Task<Pessoa?> ConsultarPorIdAsync(int id);
     Task<Pessoa?> ConsultarPorCpfAsync(string? cpf);
-    Task<IReadOnlyList<Pessoa>> PesquisarPorNomeAsync(string nome);
+    Task<IReadOnlyList<Pessoa>> PesquisarPorNomeAsync(string? nome);
     Task AtualizarAsync(int id, AtualizarPessoaInput dados);
     Task ExcluirAsync(int id);
 }
