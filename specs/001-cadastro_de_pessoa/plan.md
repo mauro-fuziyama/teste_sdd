@@ -11,6 +11,7 @@
 * Em produção, o Secrets Manager fornece ao container as variáveis de ambiente CHAVE_DE_SEGURANCA e ConnectionStrings__CadastroPessoas, com a senha da string de conexão criptografada no formato definido neste plano.
 * As tabelas já existem no banco de dados local.
 * O framework de testes será o xUnit.
+* Os testes de infraestrutura usam o banco raspadinha_dev, cujos dados são de teste e podem ser apagados ou atualizados. Os testes removem as linhas que criam.
 * A senha da string de conexão será criptografada com AES-GCM, usando a chave de 256 bits em Base64 da variável de ambiente CHAVE_DE_SEGURANCA.
 * O valor criptografado da senha é um Base64 dos bytes na ordem [nonce de 12 bytes][texto cifrado][tag de 16 bytes]. O texto original é UTF-8 e não há dados associados (AAD).
 * O appsettings.json com a senha criptografada fica apenas no computador local e não é commitado.
@@ -42,6 +43,7 @@
 
 ## Detalhe
 * Para falhas de servidor retornar 500 e a lista de errrs. Os erros 400 devem ser para regras de negócios.
+* Um registro já gravado com CPF inválido é tratado como falha de servidor: a leitura lança RegistroCorrompidoException e a API retorna 500, sem expor o CPF. Na pesquisa por nome, uma única linha nessa situação faz toda a pesquisa falhar.
 * A lista Erros traz todos os erros de validação encontrados na requisição.
 * No Atualizar (Put), cpf vazio ou omitido é rejeitado com 400.
 * IPessoaService é a única entrada da aplicação usada pela API. A classe PessoaService implementa essa interface e chama os casos de uso.
@@ -175,10 +177,15 @@ CREATE TABLE `pessoa` (
 │   │
 │   ├── CadastroPessoas.Infrastructure/
 │   │   ├── Persistence/
+│   │   │   ├── RegistroCorrompidoException.cs
+│   │   │   ├── StringDeConexaoSegura.cs
 │   │   │   └── Repositories/
-│   │   │       └── PessoaRepository.cs
+│   │   │       ├── PessoaRepository.cs
+│   │   │       └── PessoaRegistro.cs
 │   │   │
 │   │   ├── ExternalServices/
+│   │   │   ├── DescriptografadorDeSenha.cs
+│   │   │   └── MensagensDeSeguranca.cs
 │   │   │
 │   │   └── DependencyInjection.cs
 │   │

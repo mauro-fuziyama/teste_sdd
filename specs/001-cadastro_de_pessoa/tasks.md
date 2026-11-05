@@ -36,10 +36,13 @@
 ## Tarefa 4 - Infraestrutura
 * Implementar a descriptografia da senha da string de conexão com AES-GCM, usando a chave da variável de ambiente CHAVE_DE_SEGURANCA e o formato do valor definido no plan.md.
 * Implementar Persistence/Repositories/PessoaRepository.cs usando Dapper e MySqlConnector, com a tabela pessoa definida no plan.md.
+    * Converter a violação de cpf_UNIQUE em ValidacaoException com o erro de cpf já cadastrado.
+    * Lançar RegistroCorrompidoException ao ler um registro com cpf inválido, para resultar em 500.
 * Registrar as dependências em DependencyInjection.cs.
-* Criar os testes em tests/CadastroPessoas.Infrastructure.Tests.
+* Criar os testes em tests/CadastroPessoas.Infrastructure.Tests, usando o banco raspadinha_dev.
 
 ## Tarefa 5 - API
+* Chamar AdicionarInfraestrutura no Program.cs.
 * Implementar DTOs/PessoaRequest.cs e os retornos definidos no plan.md, incluindo as listas Registros e Erros.
 * Implementar os mapeamentos em Mappers/.
 * Implementar Controllers/PessoaController.cs com as rotas do plan.md:

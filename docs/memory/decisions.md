@@ -9,6 +9,10 @@
 
 | ID | Data | Título | Status |
 |----|------|--------|--------|
+| D-011 | 2026-11-05 | DependencyInjection.cs também registra a aplicação | Aceita |
+| D-010 | 2026-11-05 | Commit da Tarefa 4 apenas em branch próprio | Aceita |
+| D-009 | 2026-11-05 | CPF inválido lido do banco é falha de servidor | Aceita |
+| D-008 | 2026-11-05 | Testes de infraestrutura no banco raspadinha_dev | Aceita |
 | D-007 | 2026-11-05 | Reunir todos os erros de validação | Aceita |
 | D-006 | 2026-11-05 | IPessoaService como única entrada da aplicação | Aceita |
 | D-005 | 2026-11-05 | Datas no horário local | Aceita |
@@ -16,6 +20,85 @@
 | D-003 | 2026-11-04 | Segredos de produção no AWS Secrets Manager via ECS | Aceita |
 | D-002 | 2026-11-04 | appsettings.json apenas no computador local | Aceita |
 | D-001 | 2026-11-04 | Formato do valor criptografado da senha | Aceita |
+
+---
+
+## D-011 — DependencyInjection.cs também registra a aplicação
+
+- **Data:** 2026-11-05
+- **Status:** Aceita
+- **Spec relacionada:** `specs/001-cadastro_de_pessoa/`
+
+**Contexto:** o `plan.md` prevê apenas um `DependencyInjection.cs`, na infraestrutura, e os casos de uso, o `IPessoaService` e o `TimeProvider` também precisam ser registrados.
+
+**Decisão:** `AdicionarInfraestrutura` registra as dependências da infraestrutura e da aplicação. A chamada no `Program.cs` fica para a Tarefa 5.
+
+**Motivo:** segue a estrutura do `plan.md` e a dependência existente `Infrastructure → Application`, sem criar um arquivo que o plano não prevê.
+
+**Alternativas descartadas:**
+- Criar um `DependencyInjection.cs` na aplicação — acrescentaria um arquivo e um pacote à camada de aplicação sem necessidade.
+
+**Consequências:** o projeto Infrastructure passa a usar os pacotes `Microsoft.Extensions.Configuration.Abstractions` e `Microsoft.Extensions.DependencyInjection.Abstractions`.
+
+---
+
+## D-010 — Commit da Tarefa 4 apenas em branch próprio
+
+- **Data:** 2026-11-05
+- **Status:** Aceita
+- **Spec relacionada:** `specs/001-cadastro_de_pessoa/`
+
+**Contexto:** a Tarefa 4 foi executada em uma sessão isolada em worktree, criado a partir do `645f5fb`, que tem o código antigo. O reinício (D-004) só existia sem commit no diretório de trabalho, e a orientação era não commitar por enquanto.
+
+**Decisão:** copiar o estado atual para o worktree e commitar apenas no branch `worktree-tarefa-4-infraestrutura`. Um commit registra o reinício e outro, a Tarefa 4.
+
+**Motivo:** definição do responsável pelo projeto, como exceção limitada a esse branch.
+
+**Alternativas descartadas:**
+- Worktree sem commit — o trabalho se perderia se o worktree fosse removido junto com a sessão.
+- Sessão interativa sem worktree — adiaria a execução da tarefa.
+
+**Consequências:** o `master` e o diretório de trabalho principal não foram alterados e continuam sem a Tarefa 4. O `appsettings.json` local não entrou em nenhum commit.
+
+---
+
+## D-009 — CPF inválido lido do banco é falha de servidor
+
+- **Data:** 2026-11-05
+- **Status:** Aceita
+- **Spec relacionada:** `specs/001-cadastro_de_pessoa/`
+
+**Contexto:** a leitura cria o Value Object `CPF`, que lança `ValidacaoException` para valor inválido. Sem tratamento, um dado ruim no banco viraria um erro 400, de regra de negócio.
+
+**Decisão:** o repositório lança `RegistroCorrompidoException`, que não é uma `DominioException` e resulta em 500. A mensagem cita o id, mas não o CPF.
+
+**Motivo:** definição do responsável pelo projeto. O problema fica visível e o dado não é alterado.
+
+**Alternativas descartadas:**
+- Ler sem validar — a API poderia devolver CPFs inválidos.
+- Ignorar a linha — o registro pareceria não existir, embora o CPF continuasse ocupado pelo índice único.
+
+**Consequências:** na pesquisa por nome, uma única linha inválida faz toda a pesquisa falhar. A tabela estava vazia na verificação de 2026-11-05.
+
+---
+
+## D-008 — Testes de infraestrutura no banco raspadinha_dev
+
+- **Data:** 2026-11-05
+- **Status:** Aceita
+- **Spec relacionada:** `specs/001-cadastro_de_pessoa/`
+
+**Contexto:** os testes do `PessoaRepository` gravam na tabela `pessoa`, e o `plan.md` não definia o banco.
+
+**Decisão:** usar o `raspadinha_dev`, com a conexão do `appsettings.json` local e a `CHAVE_DE_SEGURANCA`. Os testes removem as linhas que criam.
+
+**Motivo:** definição do responsável pelo projeto: os dados desse banco são de teste e podem ser apagados ou atualizados.
+
+**Alternativas descartadas:**
+- Banco separado só para testes — exigiria criar e dar acesso a outro banco.
+- Testes sem banco real — deixariam o SQL do repositório sem teste automatizado.
+
+**Consequências:** `dotnet test` depende do MySQL local, da chave e do `appsettings.json` local; em um clone novo, os testes de infraestrutura falham até que esses itens sejam configurados.
 
 ---
 

@@ -41,6 +41,10 @@ Dependências entre projetos: `Api → Application, Infrastructure`; `Infrastruc
 - Arquitetura hexagonal, com SOLID e Clean Code; métodos curtos e pouca indentação.
 - O banco é acessado com Dapper e MySqlConnector, pelo `PessoaRepository`.
 - A interface `IPessoaRepository` fica no Domain.
+- O repositório abre conexões pelo `MySqlDataSource`, registrado como singleton, e sempre passa valores por parâmetros do Dapper.
+- `DateOnly` vira `DateTime` nos parâmetros e na leitura (`PessoaRegistro`), sem depender de suporte do Dapper a `DateOnly`.
+- No `LIKE`, o caractere de escape é `!`, e não a barra invertida, para funcionar com qualquer `sql_mode`.
+- Mensagens de erro de segurança e de conexão nunca incluem a senha, a chave nem o valor criptografado (`MensagensDeSeguranca`).
 - Erros de validação são reunidos em uma única `ValidacaoException`, com todas as mensagens em `Erros` (D-007). As mensagens ficam em `ErrosDePessoa`.
 - A API usa apenas `IPessoaService`; os casos de uso são chamados pelo `PessoaService` (D-006).
 - O domínio não lê o relógio: `Pessoa.Criar` e `Pessoa.Atualizar` recebem `momentoAtual`. Os casos de uso obtêm esse valor com `TimeProvider.GetLocalNow()`, em horário local (D-005).
@@ -63,7 +67,8 @@ Dependências entre projetos: `Api → Application, Infrastructure`; `Infrastruc
 - Framework: xUnit.
 - Cada camada testa no projeto `tests/CadastroPessoas.<Camada>.Tests`. O `tasks.md` não pede projeto de testes para a API.
 - Comandos: `dotnet build CadastroPessoas.sln` e `dotnet test CadastroPessoas.sln`.
-- Banco a usar nos testes de infraestrutura: não definido (ver `active-context.md`).
+- Testes de infraestrutura usam o `raspadinha_dev` (D-008), com a conexão do `appsettings.json` local e a `CHAVE_DE_SEGURANCA`. Cada teste gera os próprios CPFs com `banco.GerarCpfParaRemoverAoFinal()` e usa `CriarMarcadorUnico()` nos nomes pesquisados, para não depender dos dados existentes.
+- Classes de teste que usam o banco ficam na coleção `ColecaoDoBancoDeTeste.Nome`.
 
 ## Faça / Não faça
 
