@@ -36,10 +36,13 @@
 ## Tarefa 4 - Infraestrutura
 * Implementar a descriptografia da senha da string de conexão com AES-GCM, usando a chave da variável de ambiente CHAVE_DE_SEGURANCA e o formato do valor definido no plan.md.
 * Implementar Persistence/Repositories/PessoaRepository.cs usando Dapper e MySqlConnector, com a tabela pessoa definida no plan.md.
+    * Converter a violação de cpf_UNIQUE em ValidacaoException com o erro de cpf já cadastrado.
+    * Lançar RegistroCorrompidoException ao ler um registro com cpf inválido, para resultar em 500.
 * Registrar as dependências em DependencyInjection.cs.
-* Criar os testes em tests/CadastroPessoas.Infrastructure.Tests.
+* Criar os testes em tests/CadastroPessoas.Infrastructure.Tests, usando o banco raspadinha_dev.
 
 ## Tarefa 5 - API
+* Chamar AdicionarInfraestrutura no Program.cs.
 * Implementar DTOs/PessoaRequest.cs e os retornos definidos no plan.md, incluindo as listas Registros e Erros.
 * Implementar os mapeamentos em Mappers/.
 * Implementar Controllers/PessoaController.cs com as rotas do plan.md:
@@ -49,11 +52,15 @@
     * Consultar lista (get): api/pessoa/nome/valor
     * Atualizar (put): api/pessoa/id
     * Excluir (delete): api/pessoa/id
-* Implementar em Middlewares/ o tratamento de erros, com 400 para regras de negócio e 500 para falhas de servidor, sempre com a lista Erros.
+* Implementar em Middlewares/ o tratamento de erros, com 400 para regras de negócio, 404 para registro inexistente e 500 para falhas de servidor, sempre com a lista Erros.
+* Responder com 400 e a lista Erros quando o id não for numérico, o JSON estiver malformado, o corpo estiver ausente ou a datadenascimento estiver fora do formato AAAA-MM-DD.
+* Rejeitar com 400 a pesquisa por nome com valor vazio ou só com espaços, na aplicação, com teste em tests/CadastroPessoas.Application.Tests.
 * Implementar o Swagger no projeto para o ambiente de desenvolvimento. Manter o Swagger disponível apenas no ambiente de desenvolvimento.
 
 ## Tarefa 6 - Container
-* Criar o Dockerfile para execução da aplicação em produção.
+* Criar o Dockerfile para execução da aplicação em container, na raiz do repositório, com usuário sem privilégios de administrador e porta 8080.
+* Criar o .dockerignore, impedindo que o appsettings.json local entre na imagem.
+* Configurar o fuso America/Sao_Paulo no container, garantindo que os dados de fuso estejam disponíveis na imagem.
 * Não incluir a chave CHAVE_DE_SEGURANCA na imagem. Ela deve ser fornecida por variável de ambiente.
-* Não incluir a string de conexão de produção na imagem. Ela deve ser fornecida pela variável de ambiente ConnectionStrings__CadastroPessoas.
-* As duas variáveis são injetadas pelo AWS ECS a partir do AWS Secrets Manager, com configuração feita pela área de infra/segurança.
+* Não incluir a string de conexão na imagem. Ela deve ser fornecida pela variável de ambiente ConnectionStrings__CadastroPessoas.
+* As duas variáveis são informadas ao executar o container. A aplicação não vai para produção, então não há implantação no AWS ECS nem uso do AWS Secrets Manager (D-017).

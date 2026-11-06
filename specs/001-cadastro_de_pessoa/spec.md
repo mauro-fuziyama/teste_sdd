@@ -11,6 +11,8 @@
 * Quando for uma busca por nome o sistema deve usar "contém", ou seja o valor fornecido é parte do campo nome. Deverá retornar uma lista de registros.
 * Não usar paginação no retorno da lista de pessoa.
 * Na busca por cpf e Id o valor deve ser exato e retornar apenas um registro
+* Na busca por nome, o sistema deve rejeitar valor vazio ou só com espaços.
+* O sistema deve informar quando o registro a consultar, atualizar ou excluir não existir.
 
 ## Modelo de dados da pessoa
 | Nome | Tipo | Obrigatorio | Validações | Observação |
@@ -33,4 +35,5 @@
 * O sistema deve rejeitar CPF com todos os dígitos iguais (ex.: 11111111111), mesmo que passe no cálculo dos dígitos validadores.
 * O sistema deve remover os espaços das pontas do campo nome antes de validar o tamanho e deve gravar o nome sem esses espaços.
 * O sistema deve usar o horário local para o "hoje" da validação de datadenascimento e para os campos datadecadastro e dataatualizacao.
+* O sistema deve tratar como falha de servidor a leitura de um registro já gravado com cpf inválido, sem expor o valor do cpf.
 

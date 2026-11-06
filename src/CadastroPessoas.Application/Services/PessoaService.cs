@@ -30,7 +30,7 @@ public sealed class PessoaService(
         return consultarPessoa.ExecutarPorCpfAsync(cpf);
     }
 
-    public Task<IReadOnlyList<Pessoa>> PesquisarPorNomeAsync(string nome)
+    public Task<IReadOnlyList<Pessoa>> PesquisarPorNomeAsync(string? nome)
     {
         return pesquisarPessoa.ExecutarAsync(nome);
     }

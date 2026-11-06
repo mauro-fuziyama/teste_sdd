@@ -9,6 +9,16 @@
 
 | ID | Data | Título | Status |
 |----|------|--------|--------|
+| D-017 | 2026-11-06 | A aplicação não vai para produção | Aceita |
+| D-016 | 2026-11-06 | Sessões em segundo plano sem worktree | Aceita |
+| D-015 | 2026-11-06 | Imagem de produção | Aceita |
+| D-014 | 2026-11-05 | Pesquisa por nome em branco rejeitada | Aceita |
+| D-013 | 2026-11-05 | Requisição malformada retorna 400 com a lista Erros | Aceita |
+| D-012 | 2026-11-05 | Registro inexistente retorna 404 com a lista Erros | Aceita |
+| D-011 | 2026-11-05 | DependencyInjection.cs também registra a aplicação | Aceita |
+| D-010 | 2026-11-05 | Commit da Tarefa 4 apenas em branch próprio | Aceita |
+| D-009 | 2026-11-05 | CPF inválido lido do banco é falha de servidor | Aceita |
+| D-008 | 2026-11-05 | Testes de infraestrutura no banco raspadinha_dev | Aceita |
 | D-007 | 2026-11-05 | Reunir todos os erros de validação | Aceita |
 | D-006 | 2026-11-05 | IPessoaService como única entrada da aplicação | Aceita |
 | D-005 | 2026-11-05 | Datas no horário local | Aceita |
@@ -16,6 +26,202 @@
 | D-003 | 2026-11-04 | Segredos de produção no AWS Secrets Manager via ECS | Aceita |
 | D-002 | 2026-11-04 | appsettings.json apenas no computador local | Aceita |
 | D-001 | 2026-11-04 | Formato do valor criptografado da senha | Aceita |
+
+---
+
+## D-017 — A aplicação não vai para produção
+
+- **Data:** 2026-11-06
+- **Status:** Aceita
+- **Spec relacionada:** `specs/001-cadastro_de_pessoa/`
+
+**Contexto:** o `project-brief.md` dizia que o sistema não iria para produção, mas o `plan.md`, a Tarefa 6, a D-003 e a D-015 descreviam a execução em produção no AWS ECS com o AWS Secrets Manager.
+
+**Decisão:** a aplicação não vai para produção. O `plan.md` deixa de citar o AWS ECS e o Secrets Manager; o container continua como forma de execução, recebendo as variáveis por ambiente.
+
+**Motivo:** definição do responsável pelo projeto.
+
+**Alternativas descartadas:**
+- Manter a descrição de produção no `plan.md` — contradiria o `project-brief.md`.
+
+**Consequências:** a parte da D-003 sobre o AWS ECS e o Secrets Manager e a menção a produção na D-015 deixam de valer como requisito. A D-003 não foi marcada como substituída, porque a regra de passar a conexão e a chave por variável de ambiente continua válida. O `tasks.md`, o `conventions.md`, o `CLAUDE.md` e os comentários do `Dockerfile` também foram ajustados.
+
+---
+
+## D-016 — Sessões em segundo plano sem worktree
+
+- **Data:** 2026-11-06
+- **Status:** Aceita
+- **Spec relacionada:** `specs/001-cadastro_de_pessoa/`
+
+**Contexto:** as Tarefas 4 e 5 foram feitas em um worktree em `.claude/worktrees/` (D-010), e o responsável pediu para não manter vários branches ou worktrees no repositório. As sessões do Claude Code em segundo plano só editavam arquivos dentro de um worktree.
+
+**Decisão:** trabalhar sempre no diretório principal. O `.claude/settings.json` do repositório define `"worktree": {"bgIsolation": "none"}`, criado pelo responsável.
+
+**Motivo:** definição do responsável pelo projeto.
+
+**Alternativas descartadas:**
+- Worktree temporário por tarefa — exigiria levar os commits de volta e remover o worktree e o branch a cada tarefa.
+
+**Consequências:** a prática da D-010 não se repete. Sessões em segundo plano editam o mesmo diretório que o responsável usa, então não devem rodar em paralelo com trabalho manual nos mesmos arquivos.
+
+---
+
+## D-015 — Imagem de produção
+
+- **Data:** 2026-11-06
+- **Status:** Aceita
+- **Spec relacionada:** `specs/001-cadastro_de_pessoa/`
+
+**Contexto:** a Tarefa 6 pede o Dockerfile de produção, sem segredos na imagem e com o fuso America/Sao_Paulo, mas não definia imagem base, porta, usuário nem o tratamento do `global.json`.
+
+**Decisão:** build em duas etapas, com as imagens oficiais `sdk:10.0` e `aspnet:10.0`, porta 8080 e usuário `$APP_UID`. O fuso vem de `TZ`, com verificação no build. O `.dockerignore` exclui os `appsettings*.json` da API, e o build não copia o `global.json`.
+
+**Motivo:** são os padrões das imagens oficiais .NET. O `global.json` fixa o SDK local `10.0.403`, que pode não coincidir com o da imagem.
+
+**Alternativas descartadas:**
+- Imagens Alpine ou chiseled — não trazem os dados de fuso sem passos extras.
+- Instalar o certificado do antivírus no Dockerfile — é uma particularidade do computador de desenvolvimento e não deve ir para a imagem de produção.
+
+**Consequências:** `UseHttpsRedirection` continua no `Program.cs`, mas o container não tem porta HTTPS e só registra um aviso no log. A terminação de TLS fica com a AWS, sob responsabilidade da área de infra/segurança. No computador de desenvolvimento, o build local exige confiar no certificado do Norton (ver `conventions.md`).
+
+---
+
+## D-014 — Pesquisa por nome em branco rejeitada
+
+- **Data:** 2026-11-05
+- **Status:** Aceita
+- **Spec relacionada:** `specs/001-cadastro_de_pessoa/`
+
+**Contexto:** a spec não definia a pesquisa com valor só de espaços, e o valor era repassado como veio.
+
+**Decisão:** `PesquisarPessoaUseCase` rejeita valor nulo, vazio ou só com espaços com `ValidacaoException` e `ErrosDePessoa.NomeDaPesquisaObrigatorio`, resultando em 400.
+
+**Motivo:** definição do responsável pelo projeto.
+
+**Alternativas descartadas:**
+- Repassar como veio — um espaço retornaria todo nome composto.
+- Remover os espaços e listar tudo — sem paginação, a resposta poderia ser muito grande.
+
+**Consequências:** o parâmetro de rota e `IPessoaService.PesquisarPorNomeAsync` aceitam `string?`, porque o ASP.NET converte o valor em branco em `null` e o `[ApiController]` o rejeitaria antes da regra de negócio, com a mensagem errada.
+
+---
+
+## D-013 — Requisição malformada retorna 400 com a lista Erros
+
+- **Data:** 2026-11-05
+- **Status:** Aceita
+- **Spec relacionada:** `specs/001-cadastro_de_pessoa/`
+
+**Contexto:** a resposta automática de `[ApiController]` usa `ProblemDetails`, e o plano não citava id não numérico, JSON malformado nem data fora do formato.
+
+**Decisão:** esses casos retornam 400 com a lista `Erros`, por meio de `InvalidModelStateResponseFactory` e `ErrosDeRequisicaoMapper`, com mensagens fixas em português.
+
+**Motivo:** definição do responsável pelo projeto. As mensagens fixas também evitam expor tipos internos.
+
+**Alternativas descartadas:**
+- Restrição de inteiro na rota — id não numérico retornaria 404 sem a lista `Erros`.
+
+**Consequências:** com a data fora do formato, a desserialização para antes da validação de negócio, e a resposta não traz os erros dos demais campos. É um limite aceito à regra de reunir todos os erros (D-007).
+
+---
+
+## D-012 — Registro inexistente retorna 404 com a lista Erros
+
+- **Data:** 2026-11-05
+- **Status:** Aceita
+- **Spec relacionada:** `specs/001-cadastro_de_pessoa/`
+
+**Contexto:** o `plan.md` previa só 200 e 400 em PUT e DELETE e não definia o corpo do 404 das consultas.
+
+**Decisão:** PUT e DELETE de id inexistente retornam 404, e todo 404 da API traz a lista `Erros`, com a mensagem de pessoa não encontrada.
+
+**Motivo:** definição do responsável pelo projeto. Mantém as rotas coerentes e os erros em um único formato.
+
+**Alternativas descartadas:**
+- 400 em PUT e DELETE — o cliente só distinguiria os casos pela mensagem.
+- 404 com corpo vazio — criaria uma exceção ao formato de erros.
+
+**Consequências:** o controller lança `PessoaNaoEncontradaException` na consulta sem registro, e o middleware trata todos os 404. Rotas que não existem continuam retornando 404 sem corpo, pelo próprio ASP.NET.
+
+---
+
+## D-011 — DependencyInjection.cs também registra a aplicação
+
+- **Data:** 2026-11-05
+- **Status:** Aceita
+- **Spec relacionada:** `specs/001-cadastro_de_pessoa/`
+
+**Contexto:** o `plan.md` prevê apenas um `DependencyInjection.cs`, na infraestrutura, e os casos de uso, o `IPessoaService` e o `TimeProvider` também precisam ser registrados.
+
+**Decisão:** `AdicionarInfraestrutura` registra as dependências da infraestrutura e da aplicação. A chamada no `Program.cs` fica para a Tarefa 5.
+
+**Motivo:** segue a estrutura do `plan.md` e a dependência existente `Infrastructure → Application`, sem criar um arquivo que o plano não prevê.
+
+**Alternativas descartadas:**
+- Criar um `DependencyInjection.cs` na aplicação — acrescentaria um arquivo e um pacote à camada de aplicação sem necessidade.
+
+**Consequências:** o projeto Infrastructure passa a usar os pacotes `Microsoft.Extensions.Configuration.Abstractions` e `Microsoft.Extensions.DependencyInjection.Abstractions`.
+
+---
+
+## D-010 — Commit da Tarefa 4 apenas em branch próprio
+
+- **Data:** 2026-11-05
+- **Status:** Aceita
+- **Spec relacionada:** `specs/001-cadastro_de_pessoa/`
+
+**Contexto:** a Tarefa 4 foi executada em uma sessão isolada em worktree, criado a partir do `645f5fb`, que tem o código antigo. O reinício (D-004) só existia sem commit no diretório de trabalho, e a orientação era não commitar por enquanto.
+
+**Decisão:** copiar o estado atual para o worktree e commitar apenas no branch `worktree-tarefa-4-infraestrutura`. Um commit registra o reinício e outro, a Tarefa 4.
+
+**Motivo:** definição do responsável pelo projeto, como exceção limitada a esse branch.
+
+**Alternativas descartadas:**
+- Worktree sem commit — o trabalho se perderia se o worktree fosse removido junto com a sessão.
+- Sessão interativa sem worktree — adiaria a execução da tarefa.
+
+**Consequências:** o `master` e o diretório de trabalho principal não foram alterados e continuam sem a Tarefa 4. O `appsettings.json` local não entrou em nenhum commit.
+
+---
+
+## D-009 — CPF inválido lido do banco é falha de servidor
+
+- **Data:** 2026-11-05
+- **Status:** Aceita
+- **Spec relacionada:** `specs/001-cadastro_de_pessoa/`
+
+**Contexto:** a leitura cria o Value Object `CPF`, que lança `ValidacaoException` para valor inválido. Sem tratamento, um dado ruim no banco viraria um erro 400, de regra de negócio.
+
+**Decisão:** o repositório lança `RegistroCorrompidoException`, que não é uma `DominioException` e resulta em 500. A mensagem cita o id, mas não o CPF.
+
+**Motivo:** definição do responsável pelo projeto. O problema fica visível e o dado não é alterado.
+
+**Alternativas descartadas:**
+- Ler sem validar — a API poderia devolver CPFs inválidos.
+- Ignorar a linha — o registro pareceria não existir, embora o CPF continuasse ocupado pelo índice único.
+
+**Consequências:** na pesquisa por nome, uma única linha inválida faz toda a pesquisa falhar. A tabela estava vazia na verificação de 2026-11-05.
+
+---
+
+## D-008 — Testes de infraestrutura no banco raspadinha_dev
+
+- **Data:** 2026-11-05
+- **Status:** Aceita
+- **Spec relacionada:** `specs/001-cadastro_de_pessoa/`
+
+**Contexto:** os testes do `PessoaRepository` gravam na tabela `pessoa`, e o `plan.md` não definia o banco.
+
+**Decisão:** usar o `raspadinha_dev`, com a conexão do `appsettings.json` local e a `CHAVE_DE_SEGURANCA`. Os testes removem as linhas que criam.
+
+**Motivo:** definição do responsável pelo projeto: os dados desse banco são de teste e podem ser apagados ou atualizados.
+
+**Alternativas descartadas:**
+- Banco separado só para testes — exigiria criar e dar acesso a outro banco.
+- Testes sem banco real — deixariam o SQL do repositório sem teste automatizado.
+
+**Consequências:** `dotnet test` depende do MySQL local, da chave e do `appsettings.json` local; em um clone novo, os testes de infraestrutura falham até que esses itens sejam configurados.
 
 ---
 
@@ -72,7 +278,7 @@
 **Alternativas descartadas:**
 - UTC — usado na primeira versão da spec e não escolhido nesta.
 
-**Consequências:** o valor depende do fuso do ambiente de execução. O fuso do container de produção ainda não está definido (ver `active-context.md`).
+**Consequências:** o valor depende do fuso do ambiente de execução. Em 2026-11-06, o responsável definiu o fuso America/Sao_Paulo para o container de produção, a ser configurado na Tarefa 6.
 
 ---
 

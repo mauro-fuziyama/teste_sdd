@@ -8,4 +8,5 @@ public static class ErrosDePessoa
     public const string CpfJaCadastrado = "O CPF informado já está cadastrado.";
     public const string DataDeNascimentoInvalida = "A data de nascimento deve ser posterior a 1910-01-01 e anterior a hoje.";
     public const string PessoaNaoEncontrada = "A pessoa informada não foi encontrada.";
+    public const string NomeDaPesquisaObrigatorio = "O nome da pesquisa é obrigatório.";
 }

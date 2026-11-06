@@ -31,7 +31,7 @@ Não leia todas as specs nem varra o projeto inteiro sem necessidade.
 * Usar o Dapper para acesso ao banco de dados.
 * Banco de dados é um MySQL, com uma instância local para desenvolvimento já disponível.
 * Usar MySqlConnector e Swashbuckle.AspNetCore para conexão com o banco de dados.
-* Quando em produção irá rodar em um container.
+* O sistema não vai para produção. Ele pode rodar em um container, gerado pelo Dockerfile.
 
 ## Fluxo SDD
 - Specs ficam em `specs/001-cadastro_de_pessoa/` (`spec.md` → `plan.md` → `tasks.md`).

@@ -41,29 +41,43 @@ Dependências entre projetos: `Api → Application, Infrastructure`; `Infrastruc
 - Arquitetura hexagonal, com SOLID e Clean Code; métodos curtos e pouca indentação.
 - O banco é acessado com Dapper e MySqlConnector, pelo `PessoaRepository`.
 - A interface `IPessoaRepository` fica no Domain.
+- O repositório abre conexões pelo `MySqlDataSource`, registrado como singleton, e sempre passa valores por parâmetros do Dapper.
+- `DateOnly` vira `DateTime` nos parâmetros e na leitura (`PessoaRegistro`), sem depender de suporte do Dapper a `DateOnly`.
+- No `LIKE`, o caractere de escape é `!`, e não a barra invertida, para funcionar com qualquer `sql_mode`.
+- Mensagens de erro de segurança e de conexão nunca incluem a senha, a chave nem o valor criptografado (`MensagensDeSeguranca`).
 - Erros de validação são reunidos em uma única `ValidacaoException`, com todas as mensagens em `Erros` (D-007). As mensagens ficam em `ErrosDePessoa`.
 - A API usa apenas `IPessoaService`; os casos de uso são chamados pelo `PessoaService` (D-006).
 - O domínio não lê o relógio: `Pessoa.Criar` e `Pessoa.Atualizar` recebem `momentoAtual`. Os casos de uso obtêm esse valor com `TimeProvider.GetLocalNow()`, em horário local (D-005).
 - Dentro de `UseCases/Pessoa/`, a entidade é referenciada pelo alias `PessoaEntity`, porque `Pessoa` também é o nome do namespace.
 - `Pessoa.Criar` valida os dados de entrada. `Pessoa.Reconstituir` serve só para dados vindos do banco e não valida nome nem data.
 - Métodos assíncronos têm o sufixo `Async`.
-- O tratamento de erros da API fica em `Api/Middlewares`: 400 para regras de negócio e 500 para falhas de servidor, sempre com a lista `Erros`.
+- O tratamento de erros da API fica em `Api/Middlewares`: 400 para regras de negócio, 404 para registro inexistente e 500 para falhas de servidor, sempre com a lista `Erros`. O 500 usa mensagem genérica; o detalhe fica só no log.
+- Os nomes do JSON são sempre definidos com `[property: JsonPropertyName(...)]` nos DTOs.
+- Parâmetros de rota do tipo texto são `string?`, para o valor em branco chegar à regra de negócio em vez de ser rejeitado pelo `[ApiController]` (D-014).
 - O Swagger fica disponível apenas em desenvolvimento.
-- Datas usam o horário local (D-005).
+- Datas usam o horário local (D-005); no container, o fuso é America/Sao_Paulo.
 
 ## Segurança
 
 - Senhas e tokens nunca ficam expostos no código.
 - A senha da string de conexão fica criptografada com AES-GCM, no formato da D-001.
 - O `appsettings.json` local não é commitado (D-002, com `skip-worktree`).
-- Em produção, os segredos vêm do AWS Secrets Manager via ECS (D-003).
+- No container, a chave e a string de conexão chegam só por variável de ambiente e nunca entram na imagem. A aplicação não vai para produção (D-017).
 
 ## Testes
 
 - Framework: xUnit.
 - Cada camada testa no projeto `tests/CadastroPessoas.<Camada>.Tests`. O `tasks.md` não pede projeto de testes para a API.
 - Comandos: `dotnet build CadastroPessoas.sln` e `dotnet test CadastroPessoas.sln`.
-- Banco a usar nos testes de infraestrutura: não definido (ver `active-context.md`).
+- A API não tem testes automatizados; ao alterá-la, chame as rotas com a aplicação rodando (`dotnet run --project src/CadastroPessoas.Api --launch-profile http`).
+- Testes de infraestrutura usam o `raspadinha_dev` (D-008), com a conexão do `appsettings.json` local e a `CHAVE_DE_SEGURANCA`. Cada teste gera os próprios CPFs com `banco.GerarCpfParaRemoverAoFinal()` e usa `CriarMarcadorUnico()` nos nomes pesquisados, para não depender dos dados existentes.
+- Classes de teste que usam o banco ficam na coleção `ColecaoDoBancoDeTeste.Nome`.
+
+## Container
+
+- Build da imagem: `docker build -t cadastropessoas-api .`, na raiz do repositório.
+- **Build local neste computador:** o Norton Antivirus inspeciona o HTTPS, e o `dotnet restore` dentro do container falha com `NU1301 ... PartialChain`. Para validar localmente, use uma cópia do Dockerfile fora do repositório que, no estágio `build`, copie o certificado "Norton Web/Mail Shield Root" (exportado do Windows em PEM) para `/usr/local/share/ca-certificates/` e rode `update-ca-certificates`. Não commitar essa alteração.
+- Para rodar localmente contra o MySQL do Windows, use `Server=host.docker.internal` em `ConnectionStrings__CadastroPessoas` e passe as variáveis só pelo nome (`docker run -e CHAVE_DE_SEGURANCA -e ConnectionStrings__CadastroPessoas ...`), para os valores não aparecerem no comando.
 
 ## Faça / Não faça
 
@@ -78,4 +92,5 @@ Dependências entre projetos: `Api → Application, Infrastructure`; `Infrastruc
 | Nome | Obrigatória | Descrição |
 |------|-------------|-----------|
 | `CHAVE_DE_SEGURANCA` | sim | Chave AES de 256 bits em Base64, usada para descriptografar a senha da conexão |
-| `ConnectionStrings__CadastroPessoas` | em produção | String de conexão com a senha criptografada; substitui o valor do `appsettings.json` (D-003) |
+| `ConnectionStrings__CadastroPessoas` | no container | String de conexão com a senha criptografada; substitui o valor do `appsettings.json` (D-003) |
+| `TZ` | definida na imagem | `America/Sao_Paulo`; define o horário local do container (D-005) |
