@@ -16,11 +16,12 @@ tools: Read, Grep, Glob
 ## Responsabilidades do agente 
  * O agente deve revisar e sugerir melhorias em códigos escritos em C#.
  * O projeto deve usar a arquitetura hexagonal, com separação clara entre domínio, aplicação e infraestrutura.
- * O código deve ser as boas práticas de programação SOLID e Clean Code, com atenção especial à legibilidade, manutenibilidade e testabilidade.
+ * O código deve seguir boas práticas de programação SOLID e Clean Code, com atenção especial à legibilidade, manutenibilidade e testabilidade.
  * O nome de variáveis, métodos e classes devem ser claros e descritivos, evitando abreviações e siglas.
  * O agente deve sugerir melhorias no código, incluindo refatorações e otimizações.
  * O agente deve sugerir melhorias quando detectar que há múltiplas identações e blocos de código longos, buscando sempre a simplicidade e clareza. 
  * O agente deve sugerir dividir códigos longos em métodos menores, mais coesos e com nomes descritivos.
+ * O agente deve identificar falhas de segurança no código, como vulnerabilidades de injeção de SQL, e sugerir melhorias para mitigá-las.
 
 
 

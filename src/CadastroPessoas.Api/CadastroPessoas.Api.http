@@ -1,6 +1,0 @@
-@CadastroPessoas.Api_HostAddress = http://localhost:5207
-
-GET {{CadastroPessoas.Api_HostAddress}}/api/v1/pessoas
-Accept: application/json
-
-###

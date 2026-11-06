@@ -1,38 +1,44 @@
+# CadastroPessoas
+
+## Antes de implementar ou alterar código
+
+1. Leia `docs/memory/active-context.md`: onde paramos e qual é o próximo passo.
+2. Leia `docs/memory/progress.md`: estado de cada spec.
+3. Consulte `docs/memory/conventions.md` antes de escrever código.
+4. Abra **somente** a spec da feature atual em `specs/001-cadastro_de_pessoa/`.
+5. Consulte `docs/memory/decisions.md` antes de propor mudanças de arquitetura.
+
+Não leia todas as specs nem varra o projeto inteiro sem necessidade.
+
+## Projeto
+
+- **Nome:** CadastroPessoa
+- **Resumo:** aplicação para testar o SDD no desenvolvimento de API Rest em C#
+- **Stack:** MySQL, C#, .Net 10, Docker
+
+## Regras onipresentes
+* As informações de senha e tokens de acessos não devem ficar espostas no código. Quando armazenadas em arquivos de configuração devem ser criptografadas.
+* Não faça adivinhões ou suposições, caso falte alguma especifação ou ela esteja vaga a implementação deve parar e expor esta falha e só continuar quando a especificação estiver esclarecida. Os arquivos plan.md, spec.md e tasks.md devem ser atualizados.
+* O código deve seguir as boas práticas SOLID e Clean code.
+* Evitar códigos longos e muitas indentações. Neste caso dividir em métodos menores com nomes claros e intuitivos.
+* O nomes devem ser sempre claros e intuitivos, evite nomes genéricos e abreviações.
+* A string de conexão deve ficar no appsettings.json, com a senha criptograda.
+* Uma variável de ambiente chamada CHAVE_DE_SEGURANCA contém uma chave AES que deve ser usado na criptografia. 
+
+## Informações técnicas
+* O sistema implementa uma API do tipo Rest.
+* O sistema é desenvolvido em .Net 10.
+* Usar o Dapper para acesso ao banco de dados.
+* Banco de dados é um MySQL, com uma instância local para desenvolvimento já disponível.
+* Usar MySqlConnector e Swashbuckle.AspNetCore para conexão com o banco de dados.
+* Quando em produção irá rodar em um container.
+
 ## Fluxo SDD
-- Specs ficam em specs/001-cadastro_de_pessoa/
-- Antes de implementar, leia spec.md e plan.md da feature
-- Marque os itens em tasks.md conforme concluir
-- Siga as regras de specs/constitution.md
-- Caso falte alguma definição não tente adivinhar pela sua experiência, pare a implementação e aguarde a definição do usuário.
-- Atualize o arquivo README.md
+- Specs ficam em `specs/001-cadastro_de_pessoa/` (`spec.md` → `plan.md` → `tasks.md`).
+- A spec é a fonte da verdade. Se a implementação precisar divergir, atualize a spec e registre o motivo em `docs/memory/decisions.md`.
 
-## Especificações técnicas do sistema
-* A implementação deve implementar uma API do tipo Rest
-* A implementação deve ser desenvolvido em C# e .Net
-* A arquitetura deve ser Hexagonal, com separação clara de domínio, casos de uso e infra-estrutura
-* A implementação deve ser feita usando boas práticas SOLID e Clean code
-* A implementação deve evitar múltiplas identações e blocos de código longos, buscando sempre a simplicidade e clareza. 
-* A implementação deve sugerir dividir códigos longos em métodos menores, mais coesos e com nomes descritivos.
-* As configurações devem fica no arquivo appsettings.json.
-* Os campos especiais, como telefone, cep e cpf devem ser persistidos sem máscara, mas devem ser retornados com máscara.
-
-## Regras do projeto
-- API REST de cadastro de pessoas em C# / .NET 10, arquitetura Hexagonal
-- Domain não referencia nenhum outro projeto nem pacote externo
-- Application referencia apenas Domain
-- Regras de negócio retornam Result, não lançam exceção
-- SQL somente em classes *Sql dentro de Infrastructure, sempre com parâmetros
-- Máximo 2 níveis de indentação por método; métodos curtos com nomes descritivos
-- Campos privados com prefixo `_` (`_campo`)
-- Asserções nos testes com AwesomeAssertions
-- Todas as configurações no appsettings.json, inclusive a connection string. No Git ele fica com a senha vazia (preencher localmente e usar `git update-index --skip-worktree`); em produção a pipeline substitui o arquivo
-- Tabela existente `pessoa` (id INT AUTO_INCREMENT, índice único `cpf_UNIQUE`); exclusão é lógica (ativo = 0); cadastro com CPF de pessoa inativa reaproveita e reativa o registro
-
-## Comandos
-- Banco: MySQL local já existente (schema e tabelas criados); conexão em src/CadastroPessoas.Api/appsettings.json
-- Build: dotnet build
-- Testes: dotnet test
-- Rodar API: dotnet run --project src/CadastroPessoas.Api
-
-
-
+## Ao concluir cada tarefa do tasks.md
+- [ ] Atualizar `docs/memory/active-context.md` (o que foi feito, próximo passo).
+- [ ] Atualizar `docs/memory/progress.md`.
+- [ ] Registrar decisões novas em `docs/memory/decisions.md`.
+- [ ] Registrar convenções novas em `docs/memory/conventions.md`.
