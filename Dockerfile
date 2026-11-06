@@ -1,6 +1,6 @@
-# Imagem de produção da API CadastroPessoas.
+# Imagem da API CadastroPessoas. A aplicação não vai para produção (D-017).
 # Segredos não entram na imagem: CHAVE_DE_SEGURANCA e ConnectionStrings__CadastroPessoas
-# são injetadas pelo AWS ECS a partir do AWS Secrets Manager (D-003).
+# são informadas por variável de ambiente ao executar o container (D-003).
 
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src

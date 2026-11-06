@@ -44,7 +44,7 @@
 **Alternativas descartadas:**
 - Manter a descrição de produção no `plan.md` — contradiria o `project-brief.md`.
 
-**Consequências:** a parte da D-003 sobre o AWS ECS e o Secrets Manager e a menção a produção na D-015 deixam de valer como requisito. A D-003 não foi marcada como substituída, porque a regra de passar a conexão e a chave por variável de ambiente continua válida. O `tasks.md` e o `conventions.md` também foram ajustados. O `CLAUDE.md` e os comentários do `Dockerfile` ainda citam produção.
+**Consequências:** a parte da D-003 sobre o AWS ECS e o Secrets Manager e a menção a produção na D-015 deixam de valer como requisito. A D-003 não foi marcada como substituída, porque a regra de passar a conexão e a chave por variável de ambiente continua válida. O `tasks.md`, o `conventions.md`, o `CLAUDE.md` e os comentários do `Dockerfile` também foram ajustados.
 
 ---
 
