@@ -55,14 +55,14 @@ Dependências entre projetos: `Api → Application, Infrastructure`; `Infrastruc
 - Os nomes do JSON são sempre definidos com `[property: JsonPropertyName(...)]` nos DTOs.
 - Parâmetros de rota do tipo texto são `string?`, para o valor em branco chegar à regra de negócio em vez de ser rejeitado pelo `[ApiController]` (D-014).
 - O Swagger fica disponível apenas em desenvolvimento.
-- Datas usam o horário local (D-005); em produção, o fuso é America/Sao_Paulo.
+- Datas usam o horário local (D-005); no container, o fuso é America/Sao_Paulo.
 
 ## Segurança
 
 - Senhas e tokens nunca ficam expostos no código.
 - A senha da string de conexão fica criptografada com AES-GCM, no formato da D-001.
 - O `appsettings.json` local não é commitado (D-002, com `skip-worktree`).
-- Em produção, os segredos vêm do AWS Secrets Manager via ECS (D-003).
+- No container, a chave e a string de conexão chegam só por variável de ambiente e nunca entram na imagem. A aplicação não vai para produção (D-017).
 
 ## Testes
 
@@ -75,7 +75,7 @@ Dependências entre projetos: `Api → Application, Infrastructure`; `Infrastruc
 
 ## Container
 
-- Build de produção: `docker build -t cadastropessoas-api .`, na raiz do repositório.
+- Build da imagem: `docker build -t cadastropessoas-api .`, na raiz do repositório.
 - **Build local neste computador:** o Norton Antivirus inspeciona o HTTPS, e o `dotnet restore` dentro do container falha com `NU1301 ... PartialChain`. Para validar localmente, use uma cópia do Dockerfile fora do repositório que, no estágio `build`, copie o certificado "Norton Web/Mail Shield Root" (exportado do Windows em PEM) para `/usr/local/share/ca-certificates/` e rode `update-ca-certificates`. Não commitar essa alteração.
 - Para rodar localmente contra o MySQL do Windows, use `Server=host.docker.internal` em `ConnectionStrings__CadastroPessoas` e passe as variáveis só pelo nome (`docker run -e CHAVE_DE_SEGURANCA -e ConnectionStrings__CadastroPessoas ...`), para os valores não aparecerem no comando.
 
@@ -92,5 +92,5 @@ Dependências entre projetos: `Api → Application, Infrastructure`; `Infrastruc
 | Nome | Obrigatória | Descrição |
 |------|-------------|-----------|
 | `CHAVE_DE_SEGURANCA` | sim | Chave AES de 256 bits em Base64, usada para descriptografar a senha da conexão |
-| `ConnectionStrings__CadastroPessoas` | em produção | String de conexão com a senha criptografada; substitui o valor do `appsettings.json` (D-003) |
+| `ConnectionStrings__CadastroPessoas` | no container | String de conexão com a senha criptografada; substitui o valor do `appsettings.json` (D-003) |
 | `TZ` | definida na imagem | `America/Sao_Paulo`; define o horário local do container (D-005) |

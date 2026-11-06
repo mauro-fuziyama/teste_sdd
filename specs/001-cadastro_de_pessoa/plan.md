@@ -7,8 +7,8 @@
 * O sistema será uma API do tipo Rest.
 * A arquitetura será hexagonal.
 * Será usado a instância MySQL que roda no computador local para desenvolvimento. Esta instância já esta rodando.
-* A aplicação quando em produção irá rodar em container no AWS ECS, associado ao AWS Secrets Manager. A configuração na AWS é responsabilidade da área de infra/segurança.
-* Em produção, o Secrets Manager fornece ao container as variáveis de ambiente CHAVE_DE_SEGURANCA e ConnectionStrings__CadastroPessoas, com a senha da string de conexão criptografada no formato definido neste plano.
+* A aplicação não vai para produção. Não há implantação no AWS ECS nem uso do AWS Secrets Manager.
+* A aplicação pode rodar em container, gerado pelo Dockerfile. O container recebe as variáveis de ambiente CHAVE_DE_SEGURANCA e ConnectionStrings__CadastroPessoas, com a senha da string de conexão criptografada no formato definido neste plano.
 * As tabelas já existem no banco de dados local.
 * O framework de testes será o xUnit.
 * Os testes de infraestrutura usam o banco raspadinha_dev, cujos dados são de teste e podem ser apagados ou atualizados. Os testes removem as linhas que criam.
@@ -18,15 +18,15 @@
 * O banco de dados de desenvolvimento é o raspadinha_dev, acessado com o usuário teste_sdd.
 * implementar endpoints de pesquisas por nome e cpf. O nome pode ser parcial e retornar vários registros, o de cpf retorna 0 ou 1 registro
 * As datas usam o horário local: o "hoje" da validação de datadenascimento, datadecadastro e dataatualizacao.
-* O container de produção usa o fuso America/Sao_Paulo como horário local.
+* O container usa o fuso America/Sao_Paulo como horário local.
 
-## Container de produção
+## Container
 * O Dockerfile fica na raiz do repositório e gera a imagem a partir das imagens oficiais mcr.microsoft.com/dotnet/sdk:10.0 (build) e mcr.microsoft.com/dotnet/aspnet:10.0 (execução).
 * A aplicação escuta na porta 8080, padrão das imagens .NET, e roda com usuário sem privilégios de administrador ($APP_UID).
 * O fuso é definido pela variável TZ=America/Sao_Paulo. O build falha se os dados desse fuso não existirem na imagem.
 * O .dockerignore impede que o appsettings.json local, os testes, a documentação e o .git entrem na imagem. Sem appsettings.json, a configuração vem só das variáveis de ambiente.
 * O build da imagem não usa o global.json: usa o SDK da imagem sdk:10.0.
-* O ambiente da imagem é Production, então o Swagger fica desligado.
+* O ambiente do ASP.NET na imagem é Production, valor padrão, então o Swagger fica desligado no container. Esse nome é só a configuração do ASP.NET e não indica implantação em produção.
 
 ## Rotas das API
 * Criar (post): api/pessoa

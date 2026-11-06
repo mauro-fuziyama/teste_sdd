@@ -58,9 +58,9 @@
 * Implementar o Swagger no projeto para o ambiente de desenvolvimento. Manter o Swagger disponível apenas no ambiente de desenvolvimento.
 
 ## Tarefa 6 - Container
-* Criar o Dockerfile para execução da aplicação em produção, na raiz do repositório, com usuário sem privilégios de administrador e porta 8080.
+* Criar o Dockerfile para execução da aplicação em container, na raiz do repositório, com usuário sem privilégios de administrador e porta 8080.
 * Criar o .dockerignore, impedindo que o appsettings.json local entre na imagem.
 * Configurar o fuso America/Sao_Paulo no container, garantindo que os dados de fuso estejam disponíveis na imagem.
 * Não incluir a chave CHAVE_DE_SEGURANCA na imagem. Ela deve ser fornecida por variável de ambiente.
-* Não incluir a string de conexão de produção na imagem. Ela deve ser fornecida pela variável de ambiente ConnectionStrings__CadastroPessoas.
-* As duas variáveis são injetadas pelo AWS ECS a partir do AWS Secrets Manager, com configuração feita pela área de infra/segurança.
+* Não incluir a string de conexão na imagem. Ela deve ser fornecida pela variável de ambiente ConnectionStrings__CadastroPessoas.
+* As duas variáveis são informadas ao executar o container. A aplicação não vai para produção, então não há implantação no AWS ECS nem uso do AWS Secrets Manager (D-017).

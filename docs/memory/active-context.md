@@ -34,7 +34,7 @@
 
 ## Bloqueios e dúvidas em aberto
 
-- **Escopo:** em 2026-11-06 o responsável confirmou que o sistema **não irá para produção**, como diz o `project-brief.md`. Mesmo assim, o `plan.md`, a Tarefa 6, a D-003 e a D-015 ainda descrevem a execução em produção no AWS ECS. Falta decidir se esses textos ficam, por exemplo como exercício do SDD, ou se devem ser ajustados.
+- **Escopo:** o sistema **não vai para produção** (D-017), e o `plan.md`, o `tasks.md` e o `conventions.md` já refletem isso. Ainda citam produção: o `CLAUDE.md` e os comentários do `Dockerfile`, que não foram alterados.
 - **Branch remoto antigo:** `origin/worktree-tarefa-4-infraestrutura` continua no GitHub, com o mesmo conteúdo do `b06d812`. A exclusão foi bloqueada para a sessão e depende do responsável.
 
 ## Armadilhas conhecidas

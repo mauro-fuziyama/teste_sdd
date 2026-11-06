@@ -9,6 +9,7 @@
 
 | ID | Data | Título | Status |
 |----|------|--------|--------|
+| D-017 | 2026-11-06 | A aplicação não vai para produção | Aceita |
 | D-016 | 2026-11-06 | Sessões em segundo plano sem worktree | Aceita |
 | D-015 | 2026-11-06 | Imagem de produção | Aceita |
 | D-014 | 2026-11-05 | Pesquisa por nome em branco rejeitada | Aceita |
@@ -25,6 +26,25 @@
 | D-003 | 2026-11-04 | Segredos de produção no AWS Secrets Manager via ECS | Aceita |
 | D-002 | 2026-11-04 | appsettings.json apenas no computador local | Aceita |
 | D-001 | 2026-11-04 | Formato do valor criptografado da senha | Aceita |
+
+---
+
+## D-017 — A aplicação não vai para produção
+
+- **Data:** 2026-11-06
+- **Status:** Aceita
+- **Spec relacionada:** `specs/001-cadastro_de_pessoa/`
+
+**Contexto:** o `project-brief.md` dizia que o sistema não iria para produção, mas o `plan.md`, a Tarefa 6, a D-003 e a D-015 descreviam a execução em produção no AWS ECS com o AWS Secrets Manager.
+
+**Decisão:** a aplicação não vai para produção. O `plan.md` deixa de citar o AWS ECS e o Secrets Manager; o container continua como forma de execução, recebendo as variáveis por ambiente.
+
+**Motivo:** definição do responsável pelo projeto.
+
+**Alternativas descartadas:**
+- Manter a descrição de produção no `plan.md` — contradiria o `project-brief.md`.
+
+**Consequências:** a parte da D-003 sobre o AWS ECS e o Secrets Manager e a menção a produção na D-015 deixam de valer como requisito. A D-003 não foi marcada como substituída, porque a regra de passar a conexão e a chave por variável de ambiente continua válida. O `tasks.md` e o `conventions.md` também foram ajustados. O `CLAUDE.md` e os comentários do `Dockerfile` ainda citam produção.
 
 ---
 
