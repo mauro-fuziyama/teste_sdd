@@ -10,6 +10,7 @@
 | Spec | Status | Tarefas | Observação |
 |------|--------|---------|------------|
 | `001-cadastro_de_pessoa` | 🔄 | 6/6 | Todas as tarefas no branch `us001-cadastro-pessoa`; falta o merge no `main` |
+| `002-cadastro_telefone` | 🔄 | 4/4 | Todas as tarefas concluídas no branch da US002; falta o merge |
 
 ## Em andamento
 

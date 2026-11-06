@@ -9,6 +9,7 @@
 
 | ID | Data | Título | Status |
 |----|------|--------|--------|
+| D-018 | 2026-11-06 | Esclarecimentos da spec 002 (telefone) | Aceita |
 | D-017 | 2026-11-06 | A aplicação não vai para produção | Aceita |
 | D-016 | 2026-11-06 | Sessões em segundo plano sem worktree | Aceita |
 | D-015 | 2026-11-06 | Imagem de produção | Aceita |
@@ -26,6 +27,41 @@
 | D-003 | 2026-11-04 | Segredos de produção no AWS Secrets Manager via ECS | Aceita |
 | D-002 | 2026-11-04 | appsettings.json apenas no computador local | Aceita |
 | D-001 | 2026-11-04 | Formato do valor criptografado da senha | Aceita |
+
+---
+
+## D-018 — Esclarecimentos da spec 002 (telefone)
+
+- **Data:** 2026-11-06
+- **Status:** Aceita
+- **Spec relacionada:** `specs/002-cadastro_telefone/`
+
+**Contexto:** a primeira versão da spec 002 deixava vagos a origem do `pessoaid`, a troca de pessoa no PUT, a resposta da pesquisa sem resultado e a estrutura de pastas.
+
+**Decisão:**
+- **POST:** o `pessoaid` vem no corpo e precisa existir na tabela `pessoa`; senão retorna 400.
+- **PUT:** o corpo traz só o `numero`; um `pessoaid` enviado é ignorado.
+- **Pesquisa por `pessoaid`:** retorna 200 com 0 ou mais registros.
+- **Número repetido:** bloqueado para a mesma pessoa e permitido para pessoas diferentes.
+- **Banco:** a tabela `telefone` não é alterada; a regra de número repetido fica só na aplicação.
+- **Exclusão de pessoa:** exclui os telefones na mesma transação, no `PessoaRepository`.
+- **Pastas:** seguem o padrão da spec 001, com `PesquisarTelefone` como a única consulta.
+
+**Motivo:** definição do responsável pelo projeto. A transação no `PessoaRepository` evita que uma falha deixe telefones sem pessoa.
+
+**Alternativas descartadas:**
+- `pessoaid` na rota do POST — mudaria o padrão das rotas.
+- Índice único `(pessoaid, numero)` — exigiria alterar o banco.
+- Excluir os telefones no `ExcluirPessoaUseCase`, por `ITelefoneRepository` — não seria atômico sem uma unidade de trabalho.
+
+**Consequências:** duas inserções simultâneas podem gravar o mesmo número para a mesma pessoa. A spec 002 altera o comportamento da exclusão de pessoa definido na spec 001.
+
+**Atualização (2026-11-06):**
+- **Chave estrangeira:** o responsável criou no banco a chave `pessoaid` → `pessoa(id)`, com `NO ACTION`, e o índice `pessoaid_idx`.
+- **Telefone sem pessoa:** o banco passa a impedir.
+- **Pessoa com telefones:** o banco bloqueia a exclusão enquanto houver telefones, então a exclusão deles antes, na mesma transação, continua necessária.
+- **Erro de chave estrangeira na inserção:** o repositório converte em erro de pessoa inexistente (400).
+- **Ordem da pesquisa:** pelo id do telefone.
 
 ---
 

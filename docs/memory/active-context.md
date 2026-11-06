@@ -7,8 +7,30 @@
 
 ## Foco atual
 
-- **Spec:** `specs/001-cadastro_de_pessoa/`
-- **Tarefa:** todas as seis tarefas concluídas; falta decidir o encerramento da spec.
+- **Spec atual:** `specs/002-cadastro_telefone/`, esclarecida (D-018), com as quatro tarefas concluídas.
+- **Tarefa 1 - Domínio:** concluída em 2026-11-06 (sem commit). Inclui `NumeroDeTelefone`, `Telefone`, `ErrosDeTelefone`, `RegistroNaoEncontradoException` (base de `PessoaNaoEncontradaException` e `TelefoneNaoEncontradoException`) e `ITelefoneRepository`, com testes.
+- **Tarefa 2 - Aplicação:** concluída em 2026-11-06 (sem commit).
+  - `ITelefoneService` e `TelefoneService`.
+  - Casos de uso `CriarTelefone`, `PesquisarTelefone`, `AtualizarTelefone` e `ExcluirTelefone`.
+  - `TelefoneRepositoryEmMemoria` e `TelefoneServiceTests`.
+- **Tarefa 3 - Infraestrutura:** concluída em 2026-11-06 (sem commit).
+  - `TelefoneRepository` (pesquisa com `ORDER BY id`) e `TelefoneRegistro`.
+  - Violação da chave estrangeira na inserção vira erro de pessoa inexistente (400).
+  - `RegistroCorrompidoException` agora recebe o tipo do registro e o campo inválido.
+  - `PessoaRepository.ExcluirAsync` exclui os telefones e depois a pessoa, na mesma transação.
+  - Telefone registrado no `DependencyInjection.cs`, e a limpeza do `BancoDeTesteFixture` exclui os telefones antes das pessoas.
+- **Verificado em 2026-11-06:** build com 0 erros e 0 avisos e 189 testes aprovados (99 do domínio, 39 da aplicação e 51 da infraestrutura). Depois dos testes, a tabela `telefone` ficou vazia.
+- **Dado do responsável no banco:** a pessoa id 131 ("José João da Silva"), cadastrada em 2026-11-06 às 15:36, não é dos testes; não apagar.
+- **Tarefa 4 - API:** concluída em 2026-11-06.
+  - `TelefoneController`, DTOs de telefone e `TelefoneMapper`.
+  - O middleware responde 404 a qualquer `RegistroNaoEncontradoException`.
+  - `ErrosDeRequisicaoMapper` tem mensagem própria para `pessoaid` inválido.
+  - Rotas e exclusão em cascata verificadas com a API rodando contra o MySQL local.
+- **Comportamento conhecido:** um JSON cortado logo depois de `"pessoaid":` devolve a mensagem de `pessoaid` inválido, e não a de corpo inválido. É o mesmo que acontece com `datadenascimento` na spec 001.
+- **Git:** a spec 002 vai para o branch próprio da US002, criado a partir do `us001-cadastro-pessoa`.
+- **Banco:** a tabela `telefone` tem chave estrangeira `pessoaid` com `NO ACTION`. Testes e exclusão de pessoa precisam apagar os telefones antes da pessoa.
+- **Pastas já criadas:** quatro pastas de casos de uso em `src/CadastroPessoas.Application/UseCases/Telefone/` (`CriarTelefone`, `PesquisarTelefone`, `AtualizarTelefone` e `ExcluirTelefone`), com `.gitkeep`.
+- **Spec 001:** todas as seis tarefas concluídas; falta decidir o encerramento da spec. A spec 002 altera a exclusão de pessoa (exclui também os telefones).
 
 ## Situação do projeto
 

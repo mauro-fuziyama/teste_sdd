@@ -19,6 +19,15 @@ public sealed class DependencyInjectionTests(BancoDeTesteFixture banco)
     }
 
     [Fact]
+    public void AdicionarInfraestrutura_ResolveEntradaERepositorioDeTelefone()
+    {
+        using var escopo = banco.Provedor.CreateScope();
+
+        Assert.NotNull(escopo.ServiceProvider.GetRequiredService<ITelefoneService>());
+        Assert.IsType<TelefoneRepository>(escopo.ServiceProvider.GetRequiredService<ITelefoneRepository>());
+    }
+
+    [Fact]
     public void AdicionarInfraestrutura_RegistraRelogioDoSistema()
     {
         Assert.Same(TimeProvider.System, banco.Provedor.GetRequiredService<TimeProvider>());

@@ -27,7 +27,7 @@ internal sealed class PessoaRegistro
     {
         if (!CPF.EhValido(Cpf))
         {
-            throw new RegistroCorrompidoException(Id);
+            throw new RegistroCorrompidoException("pessoa", Id, "cpf");
         }
 
         return new CPF(Cpf);

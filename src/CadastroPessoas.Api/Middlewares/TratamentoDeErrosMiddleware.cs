@@ -13,7 +13,7 @@ public sealed class TratamentoDeErrosMiddleware(RequestDelegate proximo, ILogger
         {
             await proximo(contexto);
         }
-        catch (PessoaNaoEncontradaException excecao)
+        catch (RegistroNaoEncontradoException excecao)
         {
             await EscreverErrosAsync(contexto, StatusCodes.Status404NotFound, excecao.Erros);
         }

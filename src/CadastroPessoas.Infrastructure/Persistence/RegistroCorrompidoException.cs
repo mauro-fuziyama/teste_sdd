@@ -1,4 +1,4 @@
 namespace CadastroPessoas.Infrastructure.Persistence;
 
-public sealed class RegistroCorrompidoException(int id)
-    : Exception($"O registro de pessoa com id {id} tem um CPF inválido no banco de dados.");
+public sealed class RegistroCorrompidoException(string tipoDoRegistro, int id, string campoInvalido)
+    : Exception($"O registro de {tipoDoRegistro} com id {id} tem o campo {campoInvalido} inválido no banco de dados.");
