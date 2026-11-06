@@ -73,6 +73,12 @@ Dependências entre projetos: `Api → Application, Infrastructure`; `Infrastruc
 - Testes de infraestrutura usam o `raspadinha_dev` (D-008), com a conexão do `appsettings.json` local e a `CHAVE_DE_SEGURANCA`. Cada teste gera os próprios CPFs com `banco.GerarCpfParaRemoverAoFinal()` e usa `CriarMarcadorUnico()` nos nomes pesquisados, para não depender dos dados existentes.
 - Classes de teste que usam o banco ficam na coleção `ColecaoDoBancoDeTeste.Nome`.
 
+## Container
+
+- Build de produção: `docker build -t cadastropessoas-api .`, na raiz do repositório.
+- **Build local neste computador:** o Norton Antivirus inspeciona o HTTPS, e o `dotnet restore` dentro do container falha com `NU1301 ... PartialChain`. Para validar localmente, use uma cópia do Dockerfile fora do repositório que, no estágio `build`, copie o certificado "Norton Web/Mail Shield Root" (exportado do Windows em PEM) para `/usr/local/share/ca-certificates/` e rode `update-ca-certificates`. Não commitar essa alteração.
+- Para rodar localmente contra o MySQL do Windows, use `Server=host.docker.internal` em `ConnectionStrings__CadastroPessoas` e passe as variáveis só pelo nome (`docker run -e CHAVE_DE_SEGURANCA -e ConnectionStrings__CadastroPessoas ...`), para os valores não aparecerem no comando.
+
 ## Faça / Não faça
 
 | ✅ Faça | ❌ Não faça |
@@ -87,3 +93,4 @@ Dependências entre projetos: `Api → Application, Infrastructure`; `Infrastruc
 |------|-------------|-----------|
 | `CHAVE_DE_SEGURANCA` | sim | Chave AES de 256 bits em Base64, usada para descriptografar a senha da conexão |
 | `ConnectionStrings__CadastroPessoas` | em produção | String de conexão com a senha criptografada; substitui o valor do `appsettings.json` (D-003) |
+| `TZ` | definida na imagem | `America/Sao_Paulo`; define o horário local do container (D-005) |

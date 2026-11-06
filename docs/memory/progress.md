@@ -3,24 +3,24 @@
 > Estado de cada spec num relance. Evita reler o `tasks.md` de todas as features.
 > Legenda: ✅ concluída · 🔄 em andamento · ⏳ pendente · ⛔ bloqueada · 🗄️ arquivada
 
-**Última atualização:** 2026-11-05
+**Última atualização:** 2026-11-06
 
 ## Visão geral
 
 | Spec | Status | Tarefas | Observação |
 |------|--------|---------|------------|
-| `001-cadastro_de_pessoa` | 🔄 | 5/6 | Tarefas 1 a 3 em `origin/main`; Tarefas 4 e 5 no branch local `worktree-tarefa-4-infraestrutura`. Tarefa 6 pronta para começar |
+| `001-cadastro_de_pessoa` | 🔄 | 6/6 | Todas as tarefas no branch `us001-cadastro-pessoa`; falta o merge no `main` |
 
 ## Em andamento
 
 ### `001-cadastro_de_pessoa`
 
-- [x] Tarefa 1 — Setup inicial (commit só no branch da Tarefa 4)
-- [x] Tarefa 2 — Domínio (commit só no branch da Tarefa 4)
-- [x] Tarefa 3 — Aplicação (commit só no branch da Tarefa 4)
-- [x] Tarefa 4 — Infraestrutura (commit só no branch da Tarefa 4)
-- [x] Tarefa 5 — API (commit só no branch da Tarefa 4)
-- [ ] Tarefa 6 — Container ← **atual**; fuso America/Sao_Paulo definido (não há Dockerfile)
+- [x] Tarefa 1 — Setup inicial
+- [x] Tarefa 2 — Domínio
+- [x] Tarefa 3 — Aplicação
+- [x] Tarefa 4 — Infraestrutura
+- [x] Tarefa 5 — API
+- [x] Tarefa 6 — Container (imagem construída e testada localmente em 2026-11-06)
 
 ### Estado verificado em 2026-11-05
 
@@ -36,6 +36,7 @@
 | Senha no `appsettings.json` local | Descriptografada com sucesso no formato da D-001 e aceita pelo MySQL |
 | Senha nas versões commitadas do `appsettings.json` | Nenhum valor no histórico |
 | MySQL local | Conexão e login testados; tabela `pessoa` idêntica à do `plan.md` e vazia depois dos testes |
+| Imagem Docker | Construída (Docker 28.4.0, .NET 10.0.14, cerca de 346 MB descompactada); sem `appsettings.json`, usuário 1654, fuso -03, CRUD testado contra o MySQL local |
 
 ## Concluídas (resumo)
 
@@ -49,9 +50,10 @@ Nenhuma spec concluída.
 ## Dívida técnica / pendências transversais
 
 - [x] Commitar o reinício do projeto: `8e0f139 first commit`, em `origin/main`.
-- [ ] Levar as Tarefas 4 e 5 do branch `worktree-tarefa-4-infraestrutura` para o `us001-cadastro-pessoa`.
+- [x] Levar as Tarefas 4 e 5 para o `us001-cadastro-pessoa`.
+- [ ] Apagar o branch remoto `origin/worktree-tarefa-4-infraestrutura`.
 - [ ] A API não tem testes automatizados: o `tasks.md` não pede o projeto, e a verificação da Tarefa 5 foi manual.
-- [ ] Definir um remoto para o repositório; hoje não há nenhum.
+- [x] Definir um remoto para o repositório: `origin`, no GitHub.
 - [ ] Definir o que fazer com `memory-bank/`, que parece ser só uma cópia do modelo de `CLAUDE.md`.
 - [ ] O arquivo está como `CLAUDE.MD` no disco e `CLAUDE.md` no Git; a diferença pode causar problemas em sistemas que diferenciam maiúsculas.
-- [ ] O branch local é `master`, enquanto o branch principal indicado é `main`, que não existe localmente. Falta definir qual usar.
+- [x] Branch principal definido: `main`, com o trabalho da spec 001 em `us001-cadastro-pessoa`.

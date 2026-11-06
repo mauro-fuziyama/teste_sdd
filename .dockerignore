@@ -1,0 +1,17 @@
+# Configuração local com a senha criptografada: nunca entra na imagem (D-002 e D-003).
+src/CadastroPessoas.Api/appsettings.json
+src/CadastroPessoas.Api/appsettings.Development.json
+
+# Artefatos de build e arquivos locais.
+**/bin/
+**/obj/
+**/.vs/
+**/*.user
+
+# Itens que não fazem parte da aplicação publicada.
+.git/
+.claude/
+docs/
+memory-bank/
+specs/
+tests/

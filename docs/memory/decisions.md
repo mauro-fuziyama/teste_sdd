@@ -9,6 +9,8 @@
 
 | ID | Data | Título | Status |
 |----|------|--------|--------|
+| D-016 | 2026-11-06 | Sessões em segundo plano sem worktree | Aceita |
+| D-015 | 2026-11-06 | Imagem de produção | Aceita |
 | D-014 | 2026-11-05 | Pesquisa por nome em branco rejeitada | Aceita |
 | D-013 | 2026-11-05 | Requisição malformada retorna 400 com a lista Erros | Aceita |
 | D-012 | 2026-11-05 | Registro inexistente retorna 404 com a lista Erros | Aceita |
@@ -23,6 +25,45 @@
 | D-003 | 2026-11-04 | Segredos de produção no AWS Secrets Manager via ECS | Aceita |
 | D-002 | 2026-11-04 | appsettings.json apenas no computador local | Aceita |
 | D-001 | 2026-11-04 | Formato do valor criptografado da senha | Aceita |
+
+---
+
+## D-016 — Sessões em segundo plano sem worktree
+
+- **Data:** 2026-11-06
+- **Status:** Aceita
+- **Spec relacionada:** `specs/001-cadastro_de_pessoa/`
+
+**Contexto:** as Tarefas 4 e 5 foram feitas em um worktree em `.claude/worktrees/` (D-010), e o responsável pediu para não manter vários branches ou worktrees no repositório. As sessões do Claude Code em segundo plano só editavam arquivos dentro de um worktree.
+
+**Decisão:** trabalhar sempre no diretório principal. O `.claude/settings.json` do repositório define `"worktree": {"bgIsolation": "none"}`, criado pelo responsável.
+
+**Motivo:** definição do responsável pelo projeto.
+
+**Alternativas descartadas:**
+- Worktree temporário por tarefa — exigiria levar os commits de volta e remover o worktree e o branch a cada tarefa.
+
+**Consequências:** a prática da D-010 não se repete. Sessões em segundo plano editam o mesmo diretório que o responsável usa, então não devem rodar em paralelo com trabalho manual nos mesmos arquivos.
+
+---
+
+## D-015 — Imagem de produção
+
+- **Data:** 2026-11-06
+- **Status:** Aceita
+- **Spec relacionada:** `specs/001-cadastro_de_pessoa/`
+
+**Contexto:** a Tarefa 6 pede o Dockerfile de produção, sem segredos na imagem e com o fuso America/Sao_Paulo, mas não definia imagem base, porta, usuário nem o tratamento do `global.json`.
+
+**Decisão:** build em duas etapas, com as imagens oficiais `sdk:10.0` e `aspnet:10.0`, porta 8080 e usuário `$APP_UID`. O fuso vem de `TZ`, com verificação no build. O `.dockerignore` exclui os `appsettings*.json` da API, e o build não copia o `global.json`.
+
+**Motivo:** são os padrões das imagens oficiais .NET. O `global.json` fixa o SDK local `10.0.403`, que pode não coincidir com o da imagem.
+
+**Alternativas descartadas:**
+- Imagens Alpine ou chiseled — não trazem os dados de fuso sem passos extras.
+- Instalar o certificado do antivírus no Dockerfile — é uma particularidade do computador de desenvolvimento e não deve ir para a imagem de produção.
+
+**Consequências:** `UseHttpsRedirection` continua no `Program.cs`, mas o container não tem porta HTTPS e só registra um aviso no log. A terminação de TLS fica com a AWS, sob responsabilidade da área de infra/segurança. No computador de desenvolvimento, o build local exige confiar no certificado do Norton (ver `conventions.md`).
 
 ---
 

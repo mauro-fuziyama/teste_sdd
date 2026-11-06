@@ -20,6 +20,14 @@
 * As datas usam o horário local: o "hoje" da validação de datadenascimento, datadecadastro e dataatualizacao.
 * O container de produção usa o fuso America/Sao_Paulo como horário local.
 
+## Container de produção
+* O Dockerfile fica na raiz do repositório e gera a imagem a partir das imagens oficiais mcr.microsoft.com/dotnet/sdk:10.0 (build) e mcr.microsoft.com/dotnet/aspnet:10.0 (execução).
+* A aplicação escuta na porta 8080, padrão das imagens .NET, e roda com usuário sem privilégios de administrador ($APP_UID).
+* O fuso é definido pela variável TZ=America/Sao_Paulo. O build falha se os dados desse fuso não existirem na imagem.
+* O .dockerignore impede que o appsettings.json local, os testes, a documentação e o .git entrem na imagem. Sem appsettings.json, a configuração vem só das variáveis de ambiente.
+* O build da imagem não usa o global.json: usa o SDK da imagem sdk:10.0.
+* O ambiente da imagem é Production, então o Swagger fica desligado.
+
 ## Rotas das API
 * Criar (post): api/pessoa
     * Retorna 200 em caso de sucesso. Retorna o id gerado.
@@ -140,6 +148,9 @@ CREATE TABLE `pessoa` (
 ## Estrutura/Diretório da aplicação
 ```
 ./
+│
+├── Dockerfile
+├── .dockerignore
 │
 ├── src/
 │   │
