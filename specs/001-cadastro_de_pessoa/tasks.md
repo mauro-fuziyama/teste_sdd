@@ -59,6 +59,7 @@
 
 ## Tarefa 6 - Container
 * Criar o Dockerfile para execução da aplicação em produção.
+* Configurar o fuso America/Sao_Paulo no container, garantindo que os dados de fuso estejam disponíveis na imagem.
 * Não incluir a chave CHAVE_DE_SEGURANCA na imagem. Ela deve ser fornecida por variável de ambiente.
 * Não incluir a string de conexão de produção na imagem. Ela deve ser fornecida pela variável de ambiente ConnectionStrings__CadastroPessoas.
 * As duas variáveis são injetadas pelo AWS ECS a partir do AWS Secrets Manager, com configuração feita pela área de infra/segurança.

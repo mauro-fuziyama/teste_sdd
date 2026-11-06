@@ -55,7 +55,7 @@ Dependências entre projetos: `Api → Application, Infrastructure`; `Infrastruc
 - Os nomes do JSON são sempre definidos com `[property: JsonPropertyName(...)]` nos DTOs.
 - Parâmetros de rota do tipo texto são `string?`, para o valor em branco chegar à regra de negócio em vez de ser rejeitado pelo `[ApiController]` (D-014).
 - O Swagger fica disponível apenas em desenvolvimento.
-- Datas usam o horário local (D-005).
+- Datas usam o horário local (D-005); em produção, o fuso é America/Sao_Paulo.
 
 ## Segurança
 

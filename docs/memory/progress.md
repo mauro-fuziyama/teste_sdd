@@ -9,7 +9,7 @@
 
 | Spec | Status | Tarefas | Observação |
 |------|--------|---------|------------|
-| `001-cadastro_de_pessoa` | 🔄 | 5/6 | Tarefas 1 a 5 concluídas no branch `worktree-tarefa-4-infraestrutura` (D-010). Tarefa 6 aguarda esclarecimento |
+| `001-cadastro_de_pessoa` | 🔄 | 5/6 | Tarefas 1 a 3 em `origin/main`; Tarefas 4 e 5 no branch local `worktree-tarefa-4-infraestrutura`. Tarefa 6 pronta para começar |
 
 ## Em andamento
 
@@ -20,7 +20,7 @@
 - [x] Tarefa 3 — Aplicação (commit só no branch da Tarefa 4)
 - [x] Tarefa 4 — Infraestrutura (commit só no branch da Tarefa 4)
 - [x] Tarefa 5 — API (commit só no branch da Tarefa 4)
-- [ ] Tarefa 6 — Container ⛔ ← **atual**; aguarda as dúvidas em `active-context.md` (não há Dockerfile)
+- [ ] Tarefa 6 — Container ← **atual**; fuso America/Sao_Paulo definido (não há Dockerfile)
 
 ### Estado verificado em 2026-11-05
 
@@ -48,7 +48,8 @@ Nenhuma spec concluída.
 
 ## Dívida técnica / pendências transversais
 
-- [ ] Levar o reinício do projeto e as Tarefas 4 e 5 para o `master`. Hoje estão só no branch `worktree-tarefa-4-infraestrutura` (D-010). Em espera: o responsável pediu para não commitar por enquanto fora desse branch.
+- [x] Commitar o reinício do projeto: `8e0f139 first commit`, em `origin/main`.
+- [ ] Levar as Tarefas 4 e 5 do branch `worktree-tarefa-4-infraestrutura` para o `us001-cadastro-pessoa`.
 - [ ] A API não tem testes automatizados: o `tasks.md` não pede o projeto, e a verificação da Tarefa 5 foi manual.
 - [ ] Definir um remoto para o repositório; hoje não há nenhum.
 - [ ] Definir o que fazer com `memory-bank/`, que parece ser só uma cópia do modelo de `CLAUDE.md`.

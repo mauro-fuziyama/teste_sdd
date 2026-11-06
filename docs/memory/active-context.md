@@ -8,14 +8,15 @@
 ## Foco atual
 
 - **Spec:** `specs/001-cadastro_de_pessoa/`
-- **Tarefa:** Tarefa 6 - Container (bloqueada pelas dúvidas abaixo)
+- **Tarefa:** Tarefa 6 - Container (pronta para começar)
 
 ## Situação do projeto
 
 - O projeto foi reiniciado com uma spec mais simples e uma nova estrutura de pastas (D-004).
 - As Tarefas 1 a 5 estão concluídas.
-- **Onde está o trabalho:** branch `worktree-tarefa-4-infraestrutura`, no worktree `.claude/worktrees/tarefa-4-infraestrutura`. Apesar do nome, o branch também tem a Tarefa 5, que depende da 4. O `master` e o diretório de trabalho principal não foram alterados e não têm nenhuma das duas (D-010).
-- Fora desse branch continua valendo **não commitar por enquanto**, por decisão do responsável pelo projeto.
+- **Git:** o responsável commitou o reinício (Tarefas 1 a 3) como `8e0f139 first commit`, publicado em `origin/main` (GitHub `mauro-fuziyama/teste_sdd`). O diretório de trabalho principal está no branch `us001-cadastro-pessoa`, também em `8e0f139`.
+- **Onde estão as Tarefas 4 e 5:** branch local `worktree-tarefa-4-infraestrutura`, reaplicado sobre o `8e0f139` em 2026-11-06. Pode entrar no `us001-cadastro-pessoa` por fast-forward. Ainda não foi publicado.
+- O `first commit` incluiu por engano `.claude/worktrees/tarefa-4-infraestrutura` como referência de submódulo. O branch das tarefas remove essa referência e passa a ignorar `.claude/worktrees/`.
 - Verificado em 2026-11-05: `dotnet build` com 0 erros e 0 avisos; `dotnet test` com 113 testes aprovados (55 do domínio, 21 da aplicação e 37 da infraestrutura).
 
 ## Feito na última sessão
@@ -27,21 +28,17 @@
 
 ## Próximo passo
 
-1. Responsável decide como trazer o branch para o diretório de trabalho principal.
-2. Responder às dúvidas da Tarefa 6 e atualizar `plan.md` e `tasks.md`.
-3. Implementar a Tarefa 6.
+1. Trazer o branch `worktree-tarefa-4-infraestrutura` para o `us001-cadastro-pessoa` com `git merge --ff-only`.
+2. Implementar a Tarefa 6, com o fuso America/Sao_Paulo (D-005).
 
 ## Bloqueios e dúvidas em aberto
 
-**Impedem a Tarefa 6:**
-
-- Qual fuso o container de produção deve usar? Sem configuração, o horário local do container costuma ser UTC, o que afeta a D-005.
-- **Escopo:** o `project-brief.md` diz que o sistema não será para produção, mas o `plan.md`, a Tarefa 6 e a D-003 definem a execução em produção no AWS ECS. Confirmar se a Tarefa 6 continua no escopo.
+- **Escopo:** o `project-brief.md` diz que o sistema não será para produção, mas a definição do fuso do container de produção, em 2026-11-06, indica que a Tarefa 6 continua no escopo. Ajustar o `project-brief.md`, se for o caso.
 
 ## Armadilhas conhecidas
 
 - **Código antigo no Git:** o histórico até `645f5fb` tem `Result`, `Sexo`, paginação e exclusão lógica, que não fazem parte da spec atual. Não reaproveitar sem checar a spec.
-- **Risco de perda:** no diretório de trabalho principal, `git restore .` ou `git checkout .` desfaz o reinício. O repositório não tem remoto, então nada disso tem cópia fora deste computador.
+- **Submódulo acidental:** ao commitar no diretório principal, não incluir `.claude/worktrees/`; depois do fast-forward, o `.gitignore` já ignora essa pasta.
 - **Conflito de nomes em C#:** dentro de `UseCases/Pessoa/`, `Pessoa` resolve para o namespace. Usar o alias `PessoaEntity`, como nos casos de uso existentes.
 - **Pesquisa em lista:** uma única linha com CPF inválido faz a pesquisa inteira falhar com 500 (D-009).
 - **Pesquisa por nome:** a collation `utf8mb4_0900_ai_ci` ignora maiúsculas e acentos, e a ordem do retorno não está definida.

@@ -18,6 +18,7 @@
 * O banco de dados de desenvolvimento é o raspadinha_dev, acessado com o usuário teste_sdd.
 * implementar endpoints de pesquisas por nome e cpf. O nome pode ser parcial e retornar vários registros, o de cpf retorna 0 ou 1 registro
 * As datas usam o horário local: o "hoje" da validação de datadenascimento, datadecadastro e dataatualizacao.
+* O container de produção usa o fuso America/Sao_Paulo como horário local.
 
 ## Rotas das API
 * Criar (post): api/pessoa

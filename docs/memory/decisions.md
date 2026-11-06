@@ -217,7 +217,7 @@
 **Alternativas descartadas:**
 - UTC — usado na primeira versão da spec e não escolhido nesta.
 
-**Consequências:** o valor depende do fuso do ambiente de execução. O fuso do container de produção ainda não está definido (ver `active-context.md`).
+**Consequências:** o valor depende do fuso do ambiente de execução. Em 2026-11-06, o responsável definiu o fuso America/Sao_Paulo para o container de produção, a ser configurado na Tarefa 6.
 
 ---
 
