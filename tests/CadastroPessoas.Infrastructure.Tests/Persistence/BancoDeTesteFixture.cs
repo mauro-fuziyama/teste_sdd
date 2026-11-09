@@ -17,6 +17,10 @@ public sealed class BancoDeTesteFixture : IAsyncLifetime
 
     public IPessoaRepository Repositorio => Provedor.GetRequiredService<IPessoaRepository>();
 
+    public ITelefoneRepository TelefoneRepositorio => Provedor.GetRequiredService<ITelefoneRepository>();
+
+    public IEnderecoRepository EnderecoRepositorio => Provedor.GetRequiredService<IEnderecoRepository>();
+
     public Task InitializeAsync()
     {
         var configuracao = new ConfigurationBuilder()
@@ -62,7 +66,15 @@ public sealed class BancoDeTesteFixture : IAsyncLifetime
         }
 
         await using var conexao = await FonteDeDados.OpenConnectionAsync();
-        await conexao.ExecuteAsync("DELETE FROM pessoa WHERE cpf IN @Cpfs", new { Cpfs = cpfsCriados });
+        var parametros = new { Cpfs = cpfsCriados };
+
+        await conexao.ExecuteAsync(
+            "DELETE endereco FROM endereco JOIN pessoa ON pessoa.id = endereco.pessoaid WHERE pessoa.cpf IN @Cpfs",
+            parametros);
+        await conexao.ExecuteAsync(
+            "DELETE telefone FROM telefone JOIN pessoa ON pessoa.id = telefone.pessoaid WHERE pessoa.cpf IN @Cpfs",
+            parametros);
+        await conexao.ExecuteAsync("DELETE FROM pessoa WHERE cpf IN @Cpfs", parametros);
         await provedor.DisposeAsync();
     }
 }

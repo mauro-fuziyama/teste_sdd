@@ -5,7 +5,7 @@
 1. Leia `docs/memory/active-context.md`: onde paramos e qual é o próximo passo.
 2. Leia `docs/memory/progress.md`: estado de cada spec.
 3. Consulte `docs/memory/conventions.md` antes de escrever código.
-4. Abra **somente** a spec da feature atual em `specs/001-cadastro_de_pessoa/`.
+4. Abra **somente** a spec da feature atual em `specs/003-cadastro_endereco/`.
 5. Consulte `docs/memory/decisions.md` antes de propor mudanças de arquitetura.
 
 Não leia todas as specs nem varra o projeto inteiro sem necessidade.
@@ -18,10 +18,10 @@ Não leia todas as specs nem varra o projeto inteiro sem necessidade.
 
 ## Regras onipresentes
 * As informações de senha e tokens de acessos não devem ficar espostas no código. Quando armazenadas em arquivos de configuração devem ser criptografadas.
-* Não faça adivinhões ou suposições, caso falte alguma especifação ou ela esteja vaga a implementação deve parar e expor esta falha e só continuar quando a especificação estiver esclarecida. Os arquivos plan.md, spec.md e tasks.md devem ser atualizados.
+* Não faça adivinhações ou suposições, caso falte alguma especifação ou ela esteja vaga a implementação deve parar e expor esta falha e só continuar quando a especificação estiver esclarecida. Os arquivos plan.md, spec.md e tasks.md devem ser atualizados.
 * O código deve seguir as boas práticas SOLID e Clean code.
 * Evitar códigos longos e muitas indentações. Neste caso dividir em métodos menores com nomes claros e intuitivos.
-* O nomes devem ser sempre claros e intuitivos, evite nomes genéricos e abreviações.
+* Os nomes devem ser sempre claros e intuitivos, evite nomes genéricos e abreviações.
 * A string de conexão deve ficar no appsettings.json, com a senha criptograda.
 * Uma variável de ambiente chamada CHAVE_DE_SEGURANCA contém uma chave AES que deve ser usado na criptografia. 
 
@@ -34,7 +34,7 @@ Não leia todas as specs nem varra o projeto inteiro sem necessidade.
 * O sistema não vai para produção. Ele pode rodar em um container, gerado pelo Dockerfile.
 
 ## Fluxo SDD
-- Specs ficam em `specs/001-cadastro_de_pessoa/` (`spec.md` → `plan.md` → `tasks.md`).
+- Specs ficam em `specs/003-cadastro_endereco/` (`spec.md` → `plan.md` → `tasks.md`).
 - A spec é a fonte da verdade. Se a implementação precisar divergir, atualize a spec e registre o motivo em `docs/memory/decisions.md`.
 
 ## Ao concluir cada tarefa do tasks.md

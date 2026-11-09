@@ -188,6 +188,32 @@ public sealed class PessoaRepositoryTests(BancoDeTesteFixture banco)
     }
 
     [Fact]
+    public async Task ExcluirAsync_PessoaComTelefones_ExcluiOsTelefonesEAPessoa()
+    {
+        var cpf = banco.GerarCpfParaRemoverAoFinal();
+        var id = await banco.Repositorio.InserirAsync(CriarPessoa("Pessoa com telefones", cpf));
+        await banco.TelefoneRepositorio.InserirAsync(Telefone.Criar(id, "11987654321"));
+        await banco.TelefoneRepositorio.InserirAsync(Telefone.Criar(id, "1134567890"));
+
+        await banco.Repositorio.ExcluirAsync(id);
+
+        Assert.Equal(0, await ContarRegistrosComCpfAsync(cpf));
+        Assert.Empty(await banco.TelefoneRepositorio.PesquisarPorPessoaIdAsync(id));
+    }
+
+    [Fact]
+    public async Task ExcluirAsync_NaoExcluiTelefonesDeOutraPessoa()
+    {
+        var idDaPessoaExcluida = await banco.Repositorio.InserirAsync(CriarPessoa("Pessoa excluída", banco.GerarCpfParaRemoverAoFinal()));
+        var idDaOutraPessoa = await banco.Repositorio.InserirAsync(CriarPessoa("Outra pessoa", banco.GerarCpfParaRemoverAoFinal()));
+        var idDoTelefoneMantido = await banco.TelefoneRepositorio.InserirAsync(Telefone.Criar(idDaOutraPessoa, "11987654321"));
+
+        await banco.Repositorio.ExcluirAsync(idDaPessoaExcluida);
+
+        Assert.NotNull(await banco.TelefoneRepositorio.ObterPorIdAsync(idDoTelefoneMantido));
+    }
+
+    [Fact]
     public async Task PesquisarPorNomeAsync_ComCpfInvalidoNoBanco_LancaRegistroCorrompido()
     {
         var marcador = CriarMarcadorUnico();

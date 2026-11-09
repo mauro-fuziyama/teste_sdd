@@ -48,7 +48,13 @@ Dependências entre projetos: `Api → Application, Infrastructure`; `Infrastruc
 - Erros de validação são reunidos em uma única `ValidacaoException`, com todas as mensagens em `Erros` (D-007). As mensagens ficam em `ErrosDePessoa`.
 - A API usa apenas `IPessoaService`; os casos de uso são chamados pelo `PessoaService` (D-006).
 - O domínio não lê o relógio: `Pessoa.Criar` e `Pessoa.Atualizar` recebem `momentoAtual`. Os casos de uso obtêm esse valor com `TimeProvider.GetLocalNow()`, em horário local (D-005).
-- Dentro de `UseCases/Pessoa/`, a entidade é referenciada pelo alias `PessoaEntity`, porque `Pessoa` também é o nome do namespace.
+- Dentro de `UseCases/Pessoa/`, `UseCases/Telefone/` e `UseCases/Endereco/`, as entidades são referenciadas pelos aliases `PessoaEntity`, `TelefoneEntity` e `EnderecoEntity`, porque `Pessoa`, `Telefone` e `Endereco` também são nomes de namespace.
+- Nos casos de uso, as checagens que consultam o banco só rodam quando os dados necessários são válidos (por exemplo, o número repetido só é verificado quando o número é válido e a pessoa existe).
+- Erros de registro inexistente derivam de `RegistroNaoEncontradoException`, que a API trata como 404.
+- `NumeroDeTelefone` para no primeiro erro quando o número está vazio ou tem caracteres que não são dígitos. Nos demais casos, reúne os erros de tamanho, DDD e celular.
+- `Cep` exclui os hífens antes de validar e reúne os erros de dígitos e de tamanho. `SiglaDeEstado` converte para maiúsculas antes de validar e para no primeiro erro.
+- `Endereco` recebe os campos pelo record `DadosDoEndereco`, com valores ainda não validados, para evitar métodos com muitos parâmetros.
+- `Endereco.Reconstituir` não valida o tipo, e o estado ou CEP inválido lança `ValidacaoException`. O repositório precisa conferir esses três campos antes de chamá-lo e lançar `RegistroCorrompidoException` (D-009).
 - `Pessoa.Criar` valida os dados de entrada. `Pessoa.Reconstituir` serve só para dados vindos do banco e não valida nome nem data.
 - Métodos assíncronos têm o sufixo `Async`.
 - O tratamento de erros da API fica em `Api/Middlewares`: 400 para regras de negócio, 404 para registro inexistente e 500 para falhas de servidor, sempre com a lista `Erros`. O 500 usa mensagem genérica; o detalhe fica só no log.
@@ -70,8 +76,11 @@ Dependências entre projetos: `Api → Application, Infrastructure`; `Infrastruc
 - Cada camada testa no projeto `tests/CadastroPessoas.<Camada>.Tests`. O `tasks.md` não pede projeto de testes para a API.
 - Comandos: `dotnet build CadastroPessoas.sln` e `dotnet test CadastroPessoas.sln`.
 - A API não tem testes automatizados; ao alterá-la, chame as rotas com a aplicação rodando (`dotnet run --project src/CadastroPessoas.Api --launch-profile http`).
+- Ao chamar a API com `curl` no Git Bash, envie corpos com acentos pela entrada padrão (`printf '%s' "$corpo" | curl --data-binary @-`). Passados como argumento, os acentos chegam fora do UTF-8 e a API responde 400 de JSON inválido.
 - Testes de infraestrutura usam o `raspadinha_dev` (D-008), com a conexão do `appsettings.json` local e a `CHAVE_DE_SEGURANCA`. Cada teste gera os próprios CPFs com `banco.GerarCpfParaRemoverAoFinal()` e usa `CriarMarcadorUnico()` nos nomes pesquisados, para não depender dos dados existentes.
 - Classes de teste que usam o banco ficam na coleção `ColecaoDoBancoDeTeste.Nome`.
+- Testes de telefone e endereço criam a pessoa com `banco.GerarCpfParaRemoverAoFinal()`. A limpeza da fixture exclui os endereços e os telefones dessas pessoas antes delas, por causa das chaves estrangeiras. Linha com `pessoaid` nulo não é alcançada por essa limpeza, e o próprio teste precisa excluí-la.
+- Erros do MySQL que representam regra de negócio viram `ValidacaoException` no repositório: CPF duplicado (`DuplicateKeyEntry`) e pessoa inexistente na chave estrangeira do telefone e do endereço (`NoReferencedRow2`).
 
 ## Container
 
