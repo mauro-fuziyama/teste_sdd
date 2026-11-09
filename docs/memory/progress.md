@@ -11,7 +11,7 @@
 |------|--------|---------|------------|
 | `001-cadastro_de_pessoa` | 🔄 | 6/6 | Todas as tarefas no branch `us001-cadastro-pessoa`; falta o merge no `main` |
 | `002-cadastro_telefone` | 🔄 | 4/4 | Todas as tarefas no branch `us002-cadastro-telefone`; falta o merge |
-| `003-cadastro_endereco` | 🔄 | 3/4 | Spec esclarecida (D-019); Tarefas 1 a 3 concluídas no branch `us003-cadastro-endereco` |
+| `003-cadastro_endereco` | 🔄 | 4/4 | Spec esclarecida (D-019); todas as tarefas concluídas no branch `us003-cadastro-endereco`; falta o merge |
 
 ## Em andamento
 
@@ -20,9 +20,9 @@
 - [x] Tarefa 1 — Domínio (2026-11-09: build com 0 erros e 0 avisos; 211 testes de domínio aprovados)
 - [x] Tarefa 2 — Aplicação (2026-11-09: build com 0 erros e 0 avisos; 54 testes de aplicação aprovados)
 - [x] Tarefa 3 — Infraestrutura (2026-11-09: build com 0 erros e 0 avisos; 69 testes de infraestrutura aprovados contra o MySQL local)
-- [ ] Tarefa 4 — API
+- [x] Tarefa 4 — API (2026-11-09: rotas verificadas com a API rodando contra o MySQL local)
 
-## Último estado verificado (2026-11-09, spec 003, Tarefa 3)
+## Último estado verificado (2026-11-09, spec 003, Tarefa 4)
 
 | Item | Estado |
 |------|--------|

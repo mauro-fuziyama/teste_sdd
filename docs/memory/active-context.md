@@ -25,8 +25,11 @@
   - `PessoaRepository.ExcluirAsync` exclui endereços, telefones e a pessoa, na mesma transação.
   - Endereço registrado no `DependencyInjection.cs`, e a limpeza do `BancoDeTesteFixture` exclui os endereços antes das pessoas.
   - Build com 0 erros e 0 avisos; 334 testes aprovados (211 do domínio, 54 da aplicação e 69 da infraestrutura).
-- **Tarefa 4 - API:** pendente.
-- **Git:** a spec 003 fica no branch local `us003-cadastro-endereco`, criado a partir do `us002-cadastro-telefone`.
+- **Tarefa 4 - API:** concluída em 2026-11-09.
+  - `EnderecoController`, DTOs de endereço e `EnderecoMapper`.
+  - `ErrosDeRequisicaoMapper` tem mensagem própria para `tipo` não inteiro.
+  - Rotas e exclusão em cascata verificadas com a API rodando contra o MySQL local.
+- **Git:** a spec 003 fica no branch `us003-cadastro-endereco`, publicado em `origin` e criado a partir do `us002-cadastro-telefone`.
 
 ## Situação do projeto
 
@@ -38,11 +41,11 @@
 
 - Memória reiniciada para a spec 003. O histórico detalhado das specs anteriores está no Git.
 - `spec.md` e `plan.md` da 003 corrigidos e `tasks.md` gerado, com os esclarecimentos da D-019.
-- Tarefas 1 a 3 da spec 003 implementadas.
+- Tarefas 1 a 4 da spec 003 implementadas e publicadas no branch `us003-cadastro-endereco`.
 
 ## Próximo passo
 
-1. Implementar a Tarefa 4 - API.
+1. Definir o encerramento das specs 001, 002 e 003 (merge no `main`).
 
 ## Bloqueios e dúvidas em aberto
 
@@ -59,7 +62,7 @@
 - **Pesquisa em lista:** uma única linha com CPF inválido faz a pesquisa inteira falhar com 500 (D-009).
 - **Pesquisa por nome:** a collation `utf8mb4_0900_ai_ci` ignora maiúsculas e acentos, e a ordem do retorno não está definida.
 - **Data fora do formato:** a resposta 400 traz só esse erro, sem avaliar os demais campos (D-013).
-- **JSON cortado:** um corpo cortado logo depois de `"pessoaid":` ou `"datadenascimento":` devolve a mensagem de campo inválido, e não a de corpo inválido.
+- **JSON cortado:** um corpo cortado logo depois de `"pessoaid":`, `"tipo":` ou `"datadenascimento":` devolve a mensagem de campo inválido, e não a de corpo inválido.
 - **`appsettings.json`:** está com `skip-worktree` (D-002), então suas alterações não aparecem no `git status`.
 - **Testes de infraestrutura em um clone novo:** falham enquanto o `appsettings.json` local e a `CHAVE_DE_SEGURANCA` não estiverem configurados e o MySQL não estiver acessível (D-008).
 

@@ -76,6 +76,7 @@ Dependências entre projetos: `Api → Application, Infrastructure`; `Infrastruc
 - Cada camada testa no projeto `tests/CadastroPessoas.<Camada>.Tests`. O `tasks.md` não pede projeto de testes para a API.
 - Comandos: `dotnet build CadastroPessoas.sln` e `dotnet test CadastroPessoas.sln`.
 - A API não tem testes automatizados; ao alterá-la, chame as rotas com a aplicação rodando (`dotnet run --project src/CadastroPessoas.Api --launch-profile http`).
+- Ao chamar a API com `curl` no Git Bash, envie corpos com acentos pela entrada padrão (`printf '%s' "$corpo" | curl --data-binary @-`). Passados como argumento, os acentos chegam fora do UTF-8 e a API responde 400 de JSON inválido.
 - Testes de infraestrutura usam o `raspadinha_dev` (D-008), com a conexão do `appsettings.json` local e a `CHAVE_DE_SEGURANCA`. Cada teste gera os próprios CPFs com `banco.GerarCpfParaRemoverAoFinal()` e usa `CriarMarcadorUnico()` nos nomes pesquisados, para não depender dos dados existentes.
 - Classes de teste que usam o banco ficam na coleção `ColecaoDoBancoDeTeste.Nome`.
 - Testes de telefone e endereço criam a pessoa com `banco.GerarCpfParaRemoverAoFinal()`. A limpeza da fixture exclui os endereços e os telefones dessas pessoas antes delas, por causa das chaves estrangeiras. Linha com `pessoaid` nulo não é alcançada por essa limpeza, e o próprio teste precisa excluí-la.
