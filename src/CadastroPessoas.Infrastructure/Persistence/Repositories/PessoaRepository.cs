@@ -31,6 +31,8 @@ public sealed class PessoaRepository(MySqlDataSource fonteDeDados) : IPessoaRepo
         WHERE id = @Id
         """;
 
+    private const string SqlExcluirEnderecosDaPessoa = "DELETE FROM endereco WHERE pessoaid = @Id";
+
     private const string SqlExcluirTelefonesDaPessoa = "DELETE FROM telefone WHERE pessoaid = @Id";
 
     private const string SqlExcluir = "DELETE FROM pessoa WHERE id = @Id";
@@ -85,6 +87,7 @@ public sealed class PessoaRepository(MySqlDataSource fonteDeDados) : IPessoaRepo
         await using var transacao = await conexao.BeginTransactionAsync();
         var parametros = new { Id = id };
 
+        await conexao.ExecuteAsync(SqlExcluirEnderecosDaPessoa, parametros, transacao);
         await conexao.ExecuteAsync(SqlExcluirTelefonesDaPessoa, parametros, transacao);
         await conexao.ExecuteAsync(SqlExcluir, parametros, transacao);
         await transacao.CommitAsync();

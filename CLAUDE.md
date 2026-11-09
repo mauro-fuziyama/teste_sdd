@@ -5,7 +5,7 @@
 1. Leia `docs/memory/active-context.md`: onde paramos e qual é o próximo passo.
 2. Leia `docs/memory/progress.md`: estado de cada spec.
 3. Consulte `docs/memory/conventions.md` antes de escrever código.
-4. Abra **somente** a spec da feature atual em `specs/002-cadastro_telefone/`.
+4. Abra **somente** a spec da feature atual em `specs/003-cadastro_endereco/`.
 5. Consulte `docs/memory/decisions.md` antes de propor mudanças de arquitetura.
 
 Não leia todas as specs nem varra o projeto inteiro sem necessidade.
@@ -34,7 +34,7 @@ Não leia todas as specs nem varra o projeto inteiro sem necessidade.
 * O sistema não vai para produção. Ele pode rodar em um container, gerado pelo Dockerfile.
 
 ## Fluxo SDD
-- Specs ficam em `specs/001-cadastro_de_pessoa/` (`spec.md` → `plan.md` → `tasks.md`).
+- Specs ficam em `specs/003-cadastro_endereco/` (`spec.md` → `plan.md` → `tasks.md`).
 - A spec é a fonte da verdade. Se a implementação precisar divergir, atualize a spec e registre o motivo em `docs/memory/decisions.md`.
 
 ## Ao concluir cada tarefa do tasks.md

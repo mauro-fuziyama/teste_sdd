@@ -9,6 +9,8 @@ public sealed class PessoaRepositoryEmMemoria : IPessoaRepository
     private readonly Dictionary<int, Pessoa> _pessoasPorId = [];
     private int _ultimoId;
 
+    public int QuantidadeDeConsultasPorId { get; private set; }
+
     public Task<int> InserirAsync(Pessoa pessoa)
     {
         _ultimoId++;
@@ -19,6 +21,7 @@ public sealed class PessoaRepositoryEmMemoria : IPessoaRepository
 
     public Task<Pessoa?> ObterPorIdAsync(int id)
     {
+        QuantidadeDeConsultasPorId++;
         var pessoa = _pessoasPorId.GetValueOrDefault(id);
 
         return Task.FromResult(pessoa is null ? null : CopiarComId(pessoa, pessoa.Id));

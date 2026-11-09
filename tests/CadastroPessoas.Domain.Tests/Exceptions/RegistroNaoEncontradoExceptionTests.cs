@@ -21,6 +21,14 @@ public class RegistroNaoEncontradoExceptionTests
     }
 
     [Fact]
+    public void EnderecoNaoEncontrado_EhRegistroNaoEncontradoComAMensagemDeEndereco()
+    {
+        RegistroNaoEncontradoException excecao = new EnderecoNaoEncontradoException();
+
+        Assert.Equal([ErrosDeEndereco.EnderecoNaoEncontrado], excecao.Erros);
+    }
+
+    [Fact]
     public void RegistroNaoEncontrado_EhDominioException()
     {
         Assert.IsAssignableFrom<DominioException>(new TelefoneNaoEncontradoException());

@@ -1,5 +1,9 @@
 using CadastroPessoas.Application.Interfaces;
 using CadastroPessoas.Application.Services;
+using CadastroPessoas.Application.UseCases.Endereco.AtualizarEndereco;
+using CadastroPessoas.Application.UseCases.Endereco.CriarEndereco;
+using CadastroPessoas.Application.UseCases.Endereco.ExcluirEndereco;
+using CadastroPessoas.Application.UseCases.Endereco.PesquisarEndereco;
 using CadastroPessoas.Application.UseCases.Pessoa.AtualizarPessoa;
 using CadastroPessoas.Application.UseCases.Pessoa.ConsultarPessoa;
 using CadastroPessoas.Application.UseCases.Pessoa.CriarPessoa;
@@ -32,9 +36,11 @@ public static class DependencyInjection
         servicos.AddSingleton(_ => CriarFonteDeDados(configuracao));
         servicos.AddScoped<IPessoaRepository, PessoaRepository>();
         servicos.AddScoped<ITelefoneRepository, TelefoneRepository>();
+        servicos.AddScoped<IEnderecoRepository, EnderecoRepository>();
 
         AdicionarAplicacaoDePessoa(servicos);
         AdicionarAplicacaoDeTelefone(servicos);
+        AdicionarAplicacaoDeEndereco(servicos);
 
         return servicos;
     }
@@ -56,6 +62,15 @@ public static class DependencyInjection
         servicos.AddScoped<AtualizarTelefoneUseCase>();
         servicos.AddScoped<ExcluirTelefoneUseCase>();
         servicos.AddScoped<ITelefoneService, TelefoneService>();
+    }
+
+    private static void AdicionarAplicacaoDeEndereco(IServiceCollection servicos)
+    {
+        servicos.AddScoped<CriarEnderecoUseCase>();
+        servicos.AddScoped<PesquisarEnderecoUseCase>();
+        servicos.AddScoped<AtualizarEnderecoUseCase>();
+        servicos.AddScoped<ExcluirEnderecoUseCase>();
+        servicos.AddScoped<IEnderecoService, EnderecoService>();
     }
 
     private static MySqlDataSource CriarFonteDeDados(IConfiguration configuracao)

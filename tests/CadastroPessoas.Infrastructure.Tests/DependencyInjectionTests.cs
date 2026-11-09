@@ -28,6 +28,15 @@ public sealed class DependencyInjectionTests(BancoDeTesteFixture banco)
     }
 
     [Fact]
+    public void AdicionarInfraestrutura_ResolveEntradaERepositorioDeEndereco()
+    {
+        using var escopo = banco.Provedor.CreateScope();
+
+        Assert.NotNull(escopo.ServiceProvider.GetRequiredService<IEnderecoService>());
+        Assert.IsType<EnderecoRepository>(escopo.ServiceProvider.GetRequiredService<IEnderecoRepository>());
+    }
+
+    [Fact]
     public void AdicionarInfraestrutura_RegistraRelogioDoSistema()
     {
         Assert.Same(TimeProvider.System, banco.Provedor.GetRequiredService<TimeProvider>());

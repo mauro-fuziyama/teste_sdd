@@ -9,6 +9,7 @@
 
 | ID | Data | Título | Status |
 |----|------|--------|--------|
+| D-019 | 2026-11-09 | Esclarecimentos da spec 003 (endereço) | Aceita |
 | D-018 | 2026-11-06 | Esclarecimentos da spec 002 (telefone) | Aceita |
 | D-017 | 2026-11-06 | A aplicação não vai para produção | Aceita |
 | D-016 | 2026-11-06 | Sessões em segundo plano sem worktree | Aceita |
@@ -27,6 +28,35 @@
 | D-003 | 2026-11-04 | Segredos de produção no AWS Secrets Manager via ECS | Aceita |
 | D-002 | 2026-11-04 | appsettings.json apenas no computador local | Aceita |
 | D-001 | 2026-11-04 | Formato do valor criptografado da senha | Aceita |
+
+---
+
+## D-019 — Esclarecimentos da spec 003 (endereço)
+
+- **Data:** 2026-11-09
+- **Status:** Aceita
+- **Spec relacionada:** `specs/003-cadastro_endereco/`
+
+**Contexto:** a primeira versão da spec 003 dizia que a atualização altera apenas o número e citava um campo "cidade" inexistente no modelo de dados, em conflito com o corpo do PUT no `plan.md`. Também não definia os campos opcionais omitidos ou vazios, os limites de tamanho nem a validação do estado.
+
+**Decisão:**
+- **PUT:** altera todos os campos, exceto o `pessoaid`; `municipio` e `estado` são obrigatórios.
+- **Campos omitidos no PUT:** `logradouro`, `numero`, `complemento`, `bairro` e `cep` ficam NULL; só o `tipo` mantém o valor atual.
+- **Opcionais vazios ou só com espaços:** viram NULL, inclusive o `cep`.
+- **Tamanho:** texto acima do limite da coluna retorna 400.
+- **CEP com hífen:** os hífens são excluídos antes das validações, e o valor é gravado sem eles.
+- **Estado:** exatamente 2 caracteres, com a sigla de uma das 27 UFs brasileiras. Pode ser enviado em minúsculas, e é sempre gravado em maiúsculas.
+
+**Motivo:** definição do responsável pelo projeto.
+
+**Alternativas descartadas:**
+- Alterar só o campo `numero` no PUT — frase herdada da spec de telefone.
+- Manter o valor atual de todo campo omitido no PUT — o responsável definiu que só o `tipo` se mantém.
+- Gravar texto vazio — manteria dois valores para "não informado".
+- Aceitar qualquer sigla de 2 caracteres — não validaria o estado.
+- Rejeitar sigla em minúsculas — o responsável definiu a gravação sempre em maiúsculas.
+
+**Consequências:** um PUT parcial apaga os campos opcionais omitidos. A spec 003 altera novamente a exclusão de pessoa, que passa a excluir também os endereços. O `tasks.md` foi gerado com essas regras.
 
 ---
 
